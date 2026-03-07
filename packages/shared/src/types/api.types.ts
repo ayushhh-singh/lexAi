@@ -97,3 +97,42 @@ export interface ExplainResponse {
   sources: ScoredChunk[];
   cached: boolean;
 }
+
+// ─── Document Generation ────────────────────────────────────────────
+
+export type DocumentTemplate =
+  | "legal-notice"
+  | "bail-application"
+  | "writ-petition"
+  | "contract-nda"
+  | "affidavit";
+
+export type DocumentOutputFormat = "docx" | "pdf";
+
+export interface GenerateDocumentRequest {
+  template: DocumentTemplate;
+  format: DocumentOutputFormat;
+  fields: Record<string, string>;
+  case_matter_id?: string;
+  court?: string;
+  language?: "en" | "hi";
+}
+
+export interface GenerateDocumentResponse {
+  id: string;
+  title: string;
+  file_url: string;
+  mime_type: string;
+  file_size: number;
+  tokens_used: number;
+}
+
+export interface DocumentListItem {
+  id: string;
+  title: string;
+  document_type: string;
+  mime_type: string | null;
+  file_size: number | null;
+  generation_method: string | null;
+  created_at: string;
+}
