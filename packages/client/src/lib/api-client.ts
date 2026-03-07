@@ -158,6 +158,37 @@ export const api = {
       axiosInstance
         .post<ApiResponse<SkillGeneration>>("/documents/generate", body)
         .then((r) => r.data),
+    generateSSE: async (body: {
+      template: string;
+      format: string;
+      fields: Record<string, string>;
+      case_matter_id?: string;
+      court?: string;
+      language?: string;
+    }) => {
+      const token = await getAccessToken();
+      const response = await fetch(`${BASE_URL}/documents/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+      if (response.status === 401) {
+        await supabase.auth.signOut();
+        window.location.href = "/login";
+      } else if (response.status === 402) {
+        window.location.href = "/settings?tab=billing&upgrade=true";
+      }
+      return response;
+    },
+    download: async (id: string): Promise<ArrayBuffer> => {
+      const response = await axiosInstance.get(`/documents/${validateId(id)}/download`, {
+        responseType: "arraybuffer",
+      });
+      return response.data;
+    },
     list: (params?: PaginationParams & { case_id?: string; document_type?: string; search?: string }) =>
       axiosInstance.get<ApiResponse<LegalDocument[]>>("/documents", { params }).then((r) => r.data),
     get: (id: string) =>

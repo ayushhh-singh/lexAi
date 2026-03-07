@@ -4,6 +4,9 @@ import { AuthGuard } from "./components/AuthGuard";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ChatPage } from "./pages/ChatPage";
+import { DraftsPage } from "./pages/DraftsPage";
+import { DraftFormPage } from "./pages/DraftFormPage";
+import { DraftResultPage } from "./pages/DraftResultPage";
 import { Placeholder } from "./pages/Placeholder";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
@@ -32,8 +35,9 @@ export default function App() {
             <Route path="chat" element={<ChatPage />} />
             <Route path="chat/:id" element={<ChatPage />} />
             <Route path="research" element={<Placeholder />} />
-            <Route path="drafts" element={<Placeholder />} />
-            <Route path="drafts/:id" element={<Placeholder />} />
+            <Route path="drafts" element={<DraftsPage />} />
+            <Route path="drafts/:templateId" element={<DraftFormPage />} />
+            <Route path="drafts/result/:documentId" element={<DraftResultPage />} />
             <Route path="cases" element={<Placeholder />} />
             <Route path="cases/:id" element={<Placeholder />} />
             <Route path="documents" element={<Placeholder />} />
