@@ -530,6 +530,36 @@ export type Database = {
         }
         Relationships: []
       }
+      research_cache: {
+        Row: {
+          id: string
+          query_hash: string
+          query: string
+          response: string
+          source_chunk_ids: string[] | null
+          created_at: string | null
+          expires_at: string | null
+        }
+        Insert: {
+          id?: string
+          query_hash: string
+          query: string
+          response: string
+          source_chunk_ids?: string[] | null
+          created_at?: string | null
+          expires_at?: string | null
+        }
+        Update: {
+          id?: string
+          query_hash?: string
+          query?: string
+          response?: string
+          source_chunk_ids?: string[] | null
+          created_at?: string | null
+          expires_at?: string | null
+        }
+        Relationships: []
+      }
       skill_generations: {
         Row: {
           anthropic_file_id: string | null
@@ -598,7 +628,47 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      deduct_credits: {
+        Args: {
+          p_user_id: string
+          p_cost: number
+        }
+        Returns: undefined
+      }
+      match_chunks_semantic: {
+        Args: {
+          query_embedding: string
+          match_limit?: number
+          filter_source_type?: string | null
+        }
+        Returns: {
+          id: string
+          source_type: string
+          source_title: string
+          section_ref: string | null
+          content: string
+          summary: string | null
+          metadata: Json | null
+          similarity: number
+        }[]
+      }
+      match_chunks_keyword: {
+        Args: {
+          search_query: string
+          match_limit?: number
+          filter_source_type?: string | null
+        }
+        Returns: {
+          id: string
+          source_type: string
+          source_title: string
+          section_ref: string | null
+          content: string
+          summary: string | null
+          metadata: Json | null
+          fts_rank: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

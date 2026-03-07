@@ -46,3 +46,54 @@ export interface RegisterRequest {
   city: string;
   state: string;
 }
+
+// ─── RAG / Research ─────────────────────────────────────────────────
+
+export type QueryIntent =
+  | "general_query"
+  | "case_law_research"
+  | "statute_lookup"
+  | "draft_document"
+  | "summarize"
+  | "procedural_question"
+  | "opinion";
+
+export interface SearchFilters {
+  source_type?: "act" | "judgement" | "commentary" | "article";
+  source_title?: string;
+}
+
+export interface ScoredChunk {
+  id: string;
+  source_type: string;
+  source_title: string;
+  section_ref: string | null;
+  content: string;
+  summary: string | null;
+  metadata: Record<string, unknown>;
+  score: number;
+}
+
+export interface SearchRequest {
+  query: string;
+  filters?: SearchFilters;
+  limit?: number;
+}
+
+export interface SearchResponse {
+  query: string;
+  intent: QueryIntent;
+  results: ScoredChunk[];
+}
+
+export interface ExplainRequest {
+  query: string;
+  filters?: SearchFilters;
+}
+
+export interface ExplainResponse {
+  query: string;
+  answer: string;
+  sources: ScoredChunk[];
+  cached: boolean;
+}
