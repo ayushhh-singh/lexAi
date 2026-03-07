@@ -3,6 +3,7 @@ import { requireAuth } from "../middleware/auth.middleware.js";
 import { requireCredits } from "../middleware/credits.middleware.js";
 import { chatService } from "../services/chat.service.js";
 import { aiService, type ChatMessage } from "../services/ai.service.js";
+import { citationService } from "../services/citation.service.js";
 import { buildLegalAssistantPrompt } from "../prompts/legal-assistant.js";
 import { AppError } from "../middleware/error.middleware.js";
 
@@ -137,12 +138,21 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
       async (fullText, usage) => {
         if (aborted) return;
 
-        // TODO: citation verification via RAG when research service is ready
-        const citations: unknown[] = [];
+        // Citation verification: parse → verify → log gaps
+        // Wrapped in try/catch so verification failure never loses the AI response
+        let citations: import("@nyay/shared").Citation[] = [];
+        try {
+          const parsed = citationService.parseCitations(fullText);
+          const verifications = await citationService.verifyCitations(parsed);
+          citations = citationService.toCitations(verifications);
+          citationService.logUnverified(verifications);
+        } catch (err) {
+          console.error("[citation-verify] Pipeline failed, saving message without citations:", err);
+        }
 
-        // Save assistant message
+        // Save assistant message (always — even if citation verification failed)
         await chatService.saveMessage(conversationId, req.user!.id, "assistant", fullText, {
-          citations: [],
+          citations,
           aiModel: "claude-sonnet-4-5-20250514",
           tokensUsed: usage.input + usage.output,
           metadata: { input_tokens: usage.input, output_tokens: usage.output },
