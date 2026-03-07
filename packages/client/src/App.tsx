@@ -3,6 +3,9 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthGuard } from "./components/AuthGuard";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import { Placeholder } from "./pages/Placeholder";
+import { LoginPage } from "./pages/LoginPage";
+import { SignupPage } from "./pages/SignupPage";
+import { OnboardingPage } from "./pages/OnboardingPage";
 import { useAuthStore } from "./stores/auth.store";
 
 export default function App() {
@@ -16,9 +19,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         {/* Public routes */}
-        <Route path="/login" element={<Placeholder />} />
-        <Route path="/signup" element={<Placeholder />} />
-        <Route path="/onboarding" element={<Placeholder />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
 
         {/* Protected routes */}
         <Route element={<AuthGuard />}>

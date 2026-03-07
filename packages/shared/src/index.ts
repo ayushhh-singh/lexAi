@@ -11,5 +11,6 @@ export * from "./constants/practice-areas";
 export * from "./constants/court-levels";
 export * from "./constants/document-types";
 export * from "./constants/feature-flags";
+export * from "./constants/indian-states";
 
 export * from "./utils/citation-patterns";

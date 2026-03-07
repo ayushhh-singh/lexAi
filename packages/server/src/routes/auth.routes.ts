@@ -25,6 +25,11 @@ router.patch("/profile", requireAuth, async (req, res, next) => {
       "languages",
       "courts_practiced",
       "consultation_fee",
+      "city",
+      "state",
+      "default_court",
+      "preferred_language",
+      "onboarding_completed",
     ];
 
     const updates: Record<string, unknown> = {};
@@ -36,6 +41,11 @@ router.patch("/profile", requireAuth, async (req, res, next) => {
 
     if (Object.keys(updates).length === 0) {
       throw new AppError(400, "BAD_REQUEST", "No valid fields to update");
+    }
+
+    // Type-check boolean fields to prevent injection of non-boolean values
+    if ("onboarding_completed" in updates && typeof updates.onboarding_completed !== "boolean") {
+      throw new AppError(400, "BAD_REQUEST", "onboarding_completed must be a boolean");
     }
 
     const { data, error } = await supabaseAdmin

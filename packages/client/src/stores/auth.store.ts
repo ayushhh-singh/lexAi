@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { Session, User, Subscription } from "@supabase/supabase-js";
-import type { Profile } from "@nyay/shared";
+import type { Profile, RegisterInput } from "@nyay/shared";
 import { supabase } from "../lib/supabase";
 import { api } from "../lib/api-client";
 
@@ -13,7 +13,9 @@ interface AuthState {
 
   initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, fullName: string, role: "client" | "lawyer") => Promise<void>;
+  requestOtp: (email: string) => Promise<void>;
+  verifyOtp: (email: string, token: string) => Promise<void>;
+  signup: (data: RegisterInput) => Promise<void>;
   logout: () => Promise<void>;
   setProfile: (profile: Profile) => void;
   refreshProfile: () => Promise<void>;
@@ -84,13 +86,40 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  signup: async (email, password, fullName, role) => {
+  requestOtp: async (email) => {
     set({ loading: true });
     try {
+      const { error } = await supabase.auth.signInWithOtp({ email });
+      if (error) throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  verifyOtp: async (email, token) => {
+    set({ loading: true });
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+      if (error) throw error;
+      try {
+        const { data: profile } = await api.auth.getProfile({ skipRedirect: true });
+        set({ user: data.user ?? null, session: data.session ?? null, profile: profile ?? null });
+      } catch {
+        set({ user: data.user ?? null, session: data.session ?? null, profile: null });
+      }
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  signup: async (input) => {
+    set({ loading: true });
+    try {
+      const { email, password, ...metadata } = input;
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName, role } },
+        options: { data: { ...metadata, role: "lawyer" } },
       });
       if (error) throw error;
       set({ user: data.user ?? null, session: data.session ?? null });

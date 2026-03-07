@@ -40,7 +40,9 @@ export interface RegisterRequest {
   email: string;
   password: string;
   full_name: string;
-  role: "client" | "lawyer";
-  phone?: string;
-  bar_council_id?: string;
+  phone: string;
+  bar_council_id: string;
+  practice_areas: string[];
+  city: string;
+  state: string;
 }

@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const otpRequestSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const otpVerifySchema = z.object({
+  email: z.string().email("Invalid email address"),
+  token: z.string().length(6, "OTP must be 6 digits"),
+});
+
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters")
@@ -15,12 +24,13 @@ export const registerSchema = z.object({
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[0-9]/, "Password must contain at least one number"),
   full_name: z.string().min(2, "Name must be at least 2 characters"),
-  role: z.enum(["client", "lawyer"]),
   phone: z
     .string()
-    .regex(/^(\+91)?[6-9]\d{9}$/, "Invalid Indian phone number")
-    .optional(),
-  bar_council_id: z.string().optional(),
+    .regex(/^\+91[6-9]\d{9}$/, "Invalid Indian phone number (must start with +91)"),
+  bar_council_id: z.string().min(1, "Bar Council number is required"),
+  practice_areas: z.array(z.string()).min(1, "Select at least one practice area"),
+  city: z.string().min(2, "City is required"),
+  state: z.string().min(2, "State is required"),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -40,7 +50,17 @@ export const resetPasswordSchema = z.object({
   path: ["confirmPassword"],
 });
 
+export const onboardingProfileSchema = z.object({
+  practice_areas: z.array(z.string()).optional(),
+  preferred_language: z.string().optional(),
+  default_court: z.string().optional(),
+  onboarding_completed: z.boolean().optional(),
+});
+
+export type OtpRequestInput = z.infer<typeof otpRequestSchema>;
+export type OtpVerifyInput = z.infer<typeof otpVerifySchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type OnboardingProfileInput = z.infer<typeof onboardingProfileSchema>;

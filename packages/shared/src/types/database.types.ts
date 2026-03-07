@@ -35,6 +35,11 @@ export interface Profile {
   languages: string[] | null;
   courts_practiced: string[] | null;
   consultation_fee: number | null;
+  city: string | null;
+  state: string | null;
+  default_court: string | null;
+  preferred_language: string | null;
+  onboarding_completed: boolean | null;
   rating: number | null;
   total_cases: number | null;
   win_rate: number | null;

@@ -88,6 +88,11 @@ type ProfileUpdateFields = Pick<
   | "languages"
   | "courts_practiced"
   | "consultation_fee"
+  | "city"
+  | "state"
+  | "default_court"
+  | "preferred_language"
+  | "onboarding_completed"
 >;
 
 export const api = {

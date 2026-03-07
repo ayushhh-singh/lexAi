@@ -21,3 +21,34 @@
     @apply font-mono;
   }
 }
+
+@layer utilities {
+  .animate-slide-left {
+    animation: slideLeft 300ms ease-out;
+  }
+  .animate-slide-right {
+    animation: slideRight 300ms ease-out;
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

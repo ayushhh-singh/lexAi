@@ -32,7 +32,7 @@ export function AuthGuard() {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (session && !profile) {
+  if (session && (!profile || !profile.onboarding_completed)) {
     return <Navigate to="/onboarding" replace />;
   }
 
