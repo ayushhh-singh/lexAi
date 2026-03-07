@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthGuard } from "./components/AuthGuard";
 import { DashboardLayout } from "./layouts/DashboardLayout";
+import { DashboardPage } from "./pages/DashboardPage";
 import { Placeholder } from "./pages/Placeholder";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
@@ -26,7 +27,7 @@ export default function App() {
         {/* Protected routes */}
         <Route element={<AuthGuard />}>
           <Route element={<DashboardLayout />}>
-            <Route index element={<Placeholder />} />
+            <Route index element={<DashboardPage />} />
             <Route path="chat" element={<Placeholder />} />
             <Route path="chat/:id" element={<Placeholder />} />
             <Route path="research" element={<Placeholder />} />
