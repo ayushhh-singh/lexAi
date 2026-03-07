@@ -24,7 +24,15 @@ app.use(
     credentials: true,
   })
 );
-app.use(compression());
+app.use(
+  compression({
+    // Don't compress SSE streams — it buffers output and defeats streaming
+    filter: (req, res) => {
+      if (req.headers.accept === "text/event-stream") return false;
+      return compression.filter(req, res);
+    },
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json({ limit: "10mb" }));
 
