@@ -1,0 +1,17 @@
+{
+  "name": "nyay-sahayak",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=packages/server & npm run dev --workspace=packages/client",
+    "dev:client": "npm run dev --workspace=packages/client",
+    "dev:server": "npm run dev --workspace=packages/server",
+    "build": "npm run build --workspaces",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "build:client": "npm run build --workspace=packages/client",
+    "build:server": "npm run build --workspace=packages/server"
+  }
+}
