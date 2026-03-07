@@ -108,15 +108,16 @@ export const api = {
   },
 
   chat: {
-    stream: async (body: { message: string; conversation_id?: string; practice_area?: string }) => {
+    stream: async (body: { message: string; conversation_id: string; practice_area?: string }, signal?: AbortSignal) => {
       const token = await getAccessToken();
-      const response = await fetch(`${BASE_URL}/chat`, {
+      const response = await fetch(`${BASE_URL}/chat/stream`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(body),
+        signal,
       });
       if (response.status === 401) {
         await supabase.auth.signOut();
@@ -130,12 +131,20 @@ export const api = {
       axiosInstance
         .get<ApiResponse<Conversation[]>>("/chat/conversations", { params })
         .then((r) => r.data),
+    createConversation: (data: { title?: string; practice_area?: string; case_matter_id?: string }) =>
+      axiosInstance
+        .post<ApiResponse<Conversation>>("/chat/conversations", data)
+        .then((r) => r.data),
     getMessages: (conversationId: string, params?: PaginationParams) =>
       axiosInstance
         .get<ApiResponse<Message[]>>(
           `/chat/conversations/${validateId(conversationId)}/messages`,
           { params },
         )
+        .then((r) => r.data),
+    deleteConversation: (conversationId: string) =>
+      axiosInstance
+        .delete<ApiResponse<void>>(`/chat/conversations/${validateId(conversationId)}`)
         .then((r) => r.data),
   },
 

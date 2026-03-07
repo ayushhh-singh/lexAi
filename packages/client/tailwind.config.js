@@ -46,6 +46,8 @@ export default {
       animation: {
         "fade-in": "fadeIn 200ms ease-out",
         "slide-up": "slideUp 300ms ease-out",
+        "slide-right": "slideRight 200ms ease-out",
+        blink: "blink 1s step-end infinite",
       },
       keyframes: {
         fadeIn: {
@@ -55,6 +57,14 @@ export default {
         slideUp: {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
+        },
+        slideRight: {
+          from: { opacity: "0", transform: "translateX(-16px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        blink: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0" },
         },
       },
     },

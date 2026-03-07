@@ -49,8 +49,8 @@ router.post("/conversations", async (req: Request, res: Response, next) => {
   }
 });
 
-// ─── GET /:id/messages ───────────────────────────────────────────────
-router.get("/:id/messages", async (req: Request, res: Response, next) => {
+// ─── GET /conversations/:id/messages ────────────────────────────────
+router.get("/conversations/:id/messages", async (req: Request, res: Response, next) => {
   try {
     const messages = await chatService.getMessages(req.params.id, req.user!.id);
     res.json({ success: true, data: messages });
@@ -59,8 +59,8 @@ router.get("/:id/messages", async (req: Request, res: Response, next) => {
   }
 });
 
-// ─── DELETE /:id ─────────────────────────────────────────────────────
-router.delete("/:id", async (req: Request, res: Response, next) => {
+// ─── DELETE /conversations/:id ──────────────────────────────────────
+router.delete("/conversations/:id", async (req: Request, res: Response, next) => {
   try {
     await chatService.deleteConversation(req.params.id, req.user!.id);
     res.json({ success: true });
