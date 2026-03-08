@@ -26,6 +26,8 @@ export const updateCaseSchema = createCaseSchema.partial().extend({
   case_number: z.string().optional(),
   next_hearing_date: z.string().optional(),
   lawyer_id: z.string().uuid().optional(),
+  opposing_party: z.string().max(500).optional(),
+  opposing_counsel: z.string().max(500).optional(),
 });
 
 export const caseFilterSchema = z.object({

@@ -8,6 +8,8 @@ import { DraftsPage } from "./pages/DraftsPage";
 import { DraftFormPage } from "./pages/DraftFormPage";
 import { DraftResultPage } from "./pages/DraftResultPage";
 import { ResearchPage } from "./pages/ResearchPage";
+import { CasesPage } from "./pages/CasesPage";
+import { CaseDetailPage } from "./pages/CaseDetailPage";
 import { Placeholder } from "./pages/Placeholder";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
@@ -39,8 +41,8 @@ export default function App() {
             <Route path="drafts" element={<DraftsPage />} />
             <Route path="drafts/:templateId" element={<DraftFormPage />} />
             <Route path="drafts/result/:documentId" element={<DraftResultPage />} />
-            <Route path="cases" element={<Placeholder />} />
-            <Route path="cases/:id" element={<Placeholder />} />
+            <Route path="cases" element={<CasesPage />} />
+            <Route path="cases/:id" element={<CaseDetailPage />} />
             <Route path="documents" element={<Placeholder />} />
             <Route path="settings" element={<Placeholder />} />
           </Route>

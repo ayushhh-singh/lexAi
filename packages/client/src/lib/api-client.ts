@@ -7,6 +7,9 @@ import type {
   Conversation,
   Message,
   CaseMatter,
+  CaseWithStats,
+  CaseDeadline,
+  CaseNote,
   LegalDocument,
   LegalChunk,
   SkillGeneration,
@@ -246,12 +249,12 @@ export const api = {
       practice_area: string;
       filing_date?: string;
     }) =>
-      axiosInstance.post<ApiResponse<CaseMatter>>("/cases", data).then((r) => r.data),
+      axiosInstance.post<ApiResponse<CaseWithStats>>("/cases", data).then((r) => r.data),
     list: (params?: PaginationParams & { status?: string; practice_area?: string; court_level?: string; search?: string }) =>
-      axiosInstance.get<ApiResponse<CaseMatter[]>>("/cases", { params }).then((r) => r.data),
+      axiosInstance.get<ApiResponse<CaseWithStats[]>>("/cases", { params }).then((r) => r.data),
     get: (id: string) =>
       axiosInstance
-        .get<ApiResponse<CaseMatter>>(`/cases/${validateId(id)}`)
+        .get<ApiResponse<CaseWithStats>>(`/cases/${validateId(id)}`)
         .then((r) => r.data),
     update: (id: string, data: Partial<CaseUpdateFields>) =>
       axiosInstance
@@ -261,5 +264,46 @@ export const api = {
       axiosInstance
         .delete<ApiResponse<void>>(`/cases/${validateId(id)}`)
         .then((r) => r.data),
+    getDeadlines: (id: string) =>
+      axiosInstance
+        .get<ApiResponse<CaseDeadline[]>>(`/cases/${validateId(id)}/deadlines`)
+        .then((r) => r.data),
+    createDeadline: (id: string, data: { title: string; description?: string; deadline_date: string; deadline_type: string; reminder_days?: number[] }) =>
+      axiosInstance
+        .post<ApiResponse<CaseDeadline>>(`/cases/${validateId(id)}/deadlines`, data)
+        .then((r) => r.data),
+    toggleDeadline: (deadlineId: string) =>
+      axiosInstance
+        .patch<ApiResponse<CaseDeadline>>(`/cases/deadlines/${validateId(deadlineId)}/toggle`)
+        .then((r) => r.data),
+    getNotes: (id: string) =>
+      axiosInstance
+        .get<ApiResponse<CaseNote[]>>(`/cases/${validateId(id)}/notes`)
+        .then((r) => r.data),
+    createNote: (id: string, content: string) =>
+      axiosInstance
+        .post<ApiResponse<CaseNote>>(`/cases/${validateId(id)}/notes`, { content })
+        .then((r) => r.data),
+    deleteNote: (noteId: string) =>
+      axiosInstance
+        .delete<ApiResponse<void>>(`/cases/notes/${validateId(noteId)}`)
+        .then((r) => r.data),
+    generateSummarySSE: async (id: string) => {
+      const token = await getAccessToken();
+      const response = await fetch(`${BASE_URL}/cases/${validateId(id)}/summary`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (response.status === 401) {
+        await supabase.auth.signOut();
+        window.location.href = "/login";
+      } else if (response.status === 402) {
+        window.location.href = "/settings?tab=billing&upgrade=true";
+      }
+      return response;
+    },
   },
 };

@@ -1,3 +1,5 @@
+import type { CaseMatter } from "./database.types";
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -188,4 +190,40 @@ export interface BrowseActsResponse {
 export interface ActSectionsResponse {
   act: ActEntry;
   sections: ActSection[];
+}
+
+// ─── Cases Module ──────────────────────────────────────────────────
+
+export interface CaseStats {
+  total_documents: number;
+  total_conversations: number;
+  total_deadlines: number;
+  upcoming_deadlines: number;
+  overdue_deadlines: number;
+}
+
+export interface CaseWithStats extends CaseMatter {
+  stats: CaseStats;
+}
+
+export interface CaseNote {
+  id: string;
+  case_matter_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CaseSummaryRequest {
+  case_id: string;
+}
+
+export interface CaseSummaryResponse {
+  id: string;
+  title: string;
+  file_url: string;
+  mime_type: string;
+  file_size: number;
+  tokens_used: number;
 }
