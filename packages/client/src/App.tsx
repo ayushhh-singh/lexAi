@@ -7,6 +7,7 @@ import { ChatPage } from "./pages/ChatPage";
 import { DraftsPage } from "./pages/DraftsPage";
 import { DraftFormPage } from "./pages/DraftFormPage";
 import { DraftResultPage } from "./pages/DraftResultPage";
+import { ResearchPage } from "./pages/ResearchPage";
 import { Placeholder } from "./pages/Placeholder";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
@@ -34,7 +35,7 @@ export default function App() {
             <Route index element={<DashboardPage />} />
             <Route path="chat" element={<ChatPage />} />
             <Route path="chat/:id" element={<ChatPage />} />
-            <Route path="research" element={<Placeholder />} />
+            <Route path="research" element={<ResearchPage />} />
             <Route path="drafts" element={<DraftsPage />} />
             <Route path="drafts/:templateId" element={<DraftFormPage />} />
             <Route path="drafts/result/:documentId" element={<DraftResultPage />} />

@@ -10,6 +10,12 @@ import type {
   LegalDocument,
   LegalChunk,
   SkillGeneration,
+  SearchResponse,
+  ExplainResponse,
+  CaseLawSearchRequest,
+  CaseLawSearchResponse,
+  BrowseActsResponse,
+  ActSectionsResponse,
 } from "@nyay/shared";
 import { supabase } from "./supabase";
 
@@ -202,9 +208,25 @@ export const api = {
   },
 
   research: {
-    search: (body: { query: string; practice_area?: string; source_type?: string; limit?: number }) =>
+    search: (body: { query: string; filters?: { source_type?: string; source_title?: string }; limit?: number }) =>
       axiosInstance
-        .post<ApiResponse<LegalChunk[]>>("/research/search", body)
+        .post<ApiResponse<SearchResponse>>("/research/search", body)
+        .then((r) => r.data),
+    explain: (body: { query: string; filters?: { source_type?: string } }) =>
+      axiosInstance
+        .post<ApiResponse<ExplainResponse>>("/research/explain", body)
+        .then((r) => r.data),
+    searchCases: (body: CaseLawSearchRequest) =>
+      axiosInstance
+        .post<ApiResponse<CaseLawSearchResponse>>("/research/cases", body)
+        .then((r) => r.data),
+    browseActs: () =>
+      axiosInstance
+        .get<ApiResponse<BrowseActsResponse>>("/research/acts")
+        .then((r) => r.data),
+    getActSections: (title: string) =>
+      axiosInstance
+        .get<ApiResponse<ActSectionsResponse>>(`/research/acts/${encodeURIComponent(title)}`)
         .then((r) => r.data),
     verifyCitation: (id: string) =>
       axiosInstance

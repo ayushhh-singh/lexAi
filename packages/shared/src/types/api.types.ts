@@ -136,3 +136,56 @@ export interface DocumentListItem {
   generation_method: string | null;
   created_at: string;
 }
+
+// ─── Research Module ─────────────────────────────────────────────────
+
+export interface CaseLawSearchRequest {
+  keywords: string;
+  court?: string;
+  judge?: string;
+  year_from?: number;
+  year_to?: number;
+  statute?: string;
+  limit?: number;
+}
+
+export interface CaseLawResult {
+  id: string;
+  title: string;
+  citation: string;
+  court: string;
+  date: string;
+  judges: string[];
+  headnote: string;
+  source: "knowledge_base" | "indian_kanoon";
+  chunk_ids?: string[];
+}
+
+export interface CaseLawSearchResponse {
+  query: CaseLawSearchRequest;
+  results: CaseLawResult[];
+  total: number;
+}
+
+export interface ActEntry {
+  id: string;
+  title: string;
+  year: number;
+  short_title: string;
+}
+
+export interface ActSection {
+  id: string;
+  section_ref: string;
+  title: string;
+  content: string;
+}
+
+export interface BrowseActsResponse {
+  acts: ActEntry[];
+}
+
+export interface ActSectionsResponse {
+  act: ActEntry;
+  sections: ActSection[];
+}
