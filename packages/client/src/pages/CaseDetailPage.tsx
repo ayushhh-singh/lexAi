@@ -7,7 +7,6 @@ import {
   MessageSquare,
   Clock,
   StickyNote,
-  Calendar,
   Trash2,
   Plus,
   Loader2,
@@ -17,9 +16,9 @@ import {
   Download,
   FileDown,
   ChevronRight,
-  Timer,
   AlertTriangle,
 } from "lucide-react";
+import { LimitationCalculator } from "../components/cases/LimitationCalculator";
 import { api } from "../lib/api-client";
 import { PRACTICE_AREAS, COURT_LEVELS } from "@nyay/shared";
 import type {
@@ -176,7 +175,7 @@ export function CaseDetailPage() {
       {activeTab === "overview" && <OverviewTab caseMatter={caseMatter} onUpdated={loadCase} />}
       {activeTab === "documents" && <DocumentsTab caseId={caseMatter.id} caseMatter={caseMatter} />}
       {activeTab === "research" && <ResearchTab caseId={caseMatter.id} caseMatter={caseMatter} />}
-      {activeTab === "deadlines" && <DeadlinesTab caseId={caseMatter.id} />}
+      {activeTab === "deadlines" && <DeadlinesTab caseId={caseMatter.id} caseMatter={caseMatter} />}
       {activeTab === "notes" && <NotesTab caseId={caseMatter.id} />}
     </div>
   );
@@ -538,16 +537,12 @@ function ResearchTab({ caseId, caseMatter }: { caseId: string; caseMatter: CaseW
 
 // ─── Tab 4: Deadlines ───────────────────────────────────────────
 
-function DeadlinesTab({ caseId }: { caseId: string }) {
+function DeadlinesTab({ caseId, caseMatter }: { caseId: string; caseMatter: CaseWithStats }) {
   const [deadlines, setDeadlines] = useState<CaseDeadline[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [newDeadline, setNewDeadline] = useState({ title: "", description: "", deadline_date: "", deadline_type: "filing" });
   const [saving, setSaving] = useState(false);
-
-  // ─── Limitation calculator ──────
-  const [limitationDate, setLimitationDate] = useState("");
-  const [limitationPeriod, setLimitationPeriod] = useState(3); // years
 
   const loadDeadlines = useCallback(async () => {
     setLoading(true);
@@ -583,6 +578,16 @@ function DeadlinesTab({ caseId }: { caseId: string }) {
     }
   };
 
+  const handleAddLimitationDeadline = async (data: { title: string; deadline_date: string; deadline_type: string; description: string }) => {
+    await api.cases.createDeadline(caseId, {
+      title: data.title,
+      description: data.description || undefined,
+      deadline_date: data.deadline_date,
+      deadline_type: data.deadline_type,
+    });
+    loadDeadlines();
+  };
+
   const handleToggle = async (deadlineId: string) => {
     try {
       await api.cases.toggleDeadline(deadlineId);
@@ -593,19 +598,6 @@ function DeadlinesTab({ caseId }: { caseId: string }) {
   };
 
   const now = new Date();
-
-  const limitationExpiry = limitationDate
-    ? (() => {
-        const d = new Date(limitationDate);
-        d.setFullYear(d.getFullYear() + limitationPeriod);
-        return d;
-      })()
-    : null;
-
-  const limitationDaysLeft = limitationExpiry
-    ? Math.ceil((limitationExpiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    : null;
-
   const DEADLINE_TYPES = ["hearing", "filing", "limitation", "compliance", "other"];
 
   return (
@@ -763,64 +755,12 @@ function DeadlinesTab({ caseId }: { caseId: string }) {
 
       {/* Limitation Calculator */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 font-heading text-base font-semibold text-gray-900">
-          <Timer className="mr-2 inline h-4 w-4 text-accent" />
-          Limitation Period Calculator
-        </h3>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block font-heading text-xs font-medium text-gray-700">
-              Date of Cause of Action
-            </label>
-            <input
-              type="date"
-              value={limitationDate}
-              onChange={(e) => setLimitationDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 font-heading text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block font-heading text-xs font-medium text-gray-700">
-              Limitation Period (years)
-            </label>
-            <select
-              value={limitationPeriod}
-              onChange={(e) => setLimitationPeriod(Number(e.target.value))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 font-heading text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent"
-            >
-              {[1, 2, 3, 5, 6, 12, 15, 30].map((y) => (
-                <option key={y} value={y}>{y} year{y > 1 ? "s" : ""}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block font-heading text-xs font-medium text-gray-700">Expiry Date</label>
-            {limitationExpiry ? (
-              <div className={`rounded-lg border px-3 py-2.5 ${
-                limitationDaysLeft !== null && limitationDaysLeft < 0
-                  ? "border-error/30 bg-error/5"
-                  : limitationDaysLeft !== null && limitationDaysLeft <= 30
-                    ? "border-warning/30 bg-warning/5"
-                    : "border-gray-300"
-              }`}>
-                <p className="font-heading text-sm font-medium text-gray-900">
-                  {limitationExpiry.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                </p>
-                <p className={`font-heading text-xs ${
-                  limitationDaysLeft !== null && limitationDaysLeft < 0 ? "font-semibold text-error" : "text-gray-500"
-                }`}>
-                  {limitationDaysLeft !== null && limitationDaysLeft < 0
-                    ? `EXPIRED ${Math.abs(limitationDaysLeft)} days ago`
-                    : `${limitationDaysLeft} days remaining`}
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-lg border border-gray-300 px-3 py-2.5">
-                <p className="font-heading text-sm text-gray-400">Select a date</p>
-              </div>
-            )}
-          </div>
-        </div>
+        <LimitationCalculator
+          caseId={caseId}
+          caseType={caseMatter.case_type}
+          caseDescription={caseMatter.description ?? undefined}
+          onAddDeadline={handleAddLimitationDeadline}
+        />
       </div>
     </div>
   );

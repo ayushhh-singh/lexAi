@@ -161,6 +161,19 @@ export interface SkillGeneration {
   updated_at: string;
 }
 
+export interface DeadlineNotificationRow {
+  id: string;
+  user_id: string;
+  case_matter_id: string;
+  deadline_id: string;
+  title: string;
+  message: string;
+  notification_type: "upcoming" | "overdue" | "reminder";
+  days_until_deadline: number;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface BetaUsageAnalytic {
   id: string;
   user_id: string;

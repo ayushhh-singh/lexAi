@@ -227,3 +227,69 @@ export interface CaseSummaryResponse {
   file_size: number;
   tokens_used: number;
 }
+
+// ─── Limitation Calculator ─────────────────────────────────────
+
+export interface LimitationPeriod {
+  id: string;
+  article: string;
+  description: string;
+  period_days: number;
+  period_label: string;
+  act: string;
+  section: string | null;
+  category: LimitationCategory;
+  condonable: boolean;
+  condonation_section: string | null;
+  notes: string | null;
+}
+
+export type LimitationCategory =
+  | "suits_relating_to_contracts"
+  | "suits_relating_to_declarations"
+  | "suits_relating_to_decrees_and_instruments"
+  | "suits_relating_to_movable_property"
+  | "suits_relating_to_immovable_property"
+  | "suits_relating_to_torts"
+  | "appeals"
+  | "applications"
+  | "criminal"
+  | "special_statutes";
+
+export interface ExclusionInput {
+  section_12?: { days: number; reason: string };
+  section_14?: { days: number; reason: string };
+  section_15?: { days: number; reason: string };
+}
+
+export interface LimitationCalculation {
+  cause_date: string;
+  limitation_period: LimitationPeriod;
+  raw_deadline: string;
+  exclusions_applied: ExclusionInput;
+  total_excluded_days: number;
+  final_deadline: string;
+  days_remaining: number;
+  is_expired: boolean;
+  is_condonable: boolean;
+  condonation_note: string | null;
+  warnings: string[];
+}
+
+export interface LimitationSuggestion {
+  period: LimitationPeriod;
+  relevance: string;
+}
+
+export interface DeadlineNotification {
+  id: string;
+  user_id: string;
+  case_matter_id: string;
+  deadline_id: string;
+  title: string;
+  message: string;
+  notification_type: "upcoming" | "overdue" | "reminder";
+  days_until_deadline: number;
+  is_read: boolean;
+  created_at: string;
+}

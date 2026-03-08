@@ -19,6 +19,13 @@ import type {
   CaseLawSearchResponse,
   BrowseActsResponse,
   ActSectionsResponse,
+  LimitationPeriod,
+  LimitationCalculation,
+  LimitationSuggestion,
+  LimitationCategory,
+  DeadlineNotification,
+  CalculateLimitationInput,
+  LimitationSuggestInput,
 } from "@nyay/shared";
 import { supabase } from "./supabase";
 
@@ -305,5 +312,39 @@ export const api = {
       }
       return response;
     },
+  },
+
+  limitation: {
+    getPeriods: (category?: LimitationCategory) =>
+      axiosInstance
+        .get<ApiResponse<LimitationPeriod[]>>("/limitation/periods", { params: category ? { category } : undefined })
+        .then((r) => r.data),
+    getCategories: () =>
+      axiosInstance
+        .get<ApiResponse<Array<{ id: LimitationCategory; label: string }>>>("/limitation/categories")
+        .then((r) => r.data),
+    calculate: (data: CalculateLimitationInput) =>
+      axiosInstance
+        .post<ApiResponse<LimitationCalculation>>("/limitation/calculate", data)
+        .then((r) => r.data),
+    suggest: (data: LimitationSuggestInput) =>
+      axiosInstance
+        .post<ApiResponse<LimitationSuggestion[]>>("/limitation/suggest", data)
+        .then((r) => r.data),
+    getPeriod: (id: string) =>
+      axiosInstance
+        .get<ApiResponse<LimitationPeriod>>(`/limitation/periods/${encodeURIComponent(id)}`)
+        .then((r) => r.data),
+  },
+
+  notifications: {
+    list: (params?: { unread_only?: boolean }) =>
+      axiosInstance
+        .get<ApiResponse<DeadlineNotification[]>>("/notifications", { params })
+        .then((r) => r.data),
+    markRead: (id: string) =>
+      axiosInstance
+        .patch<ApiResponse<void>>(`/notifications/${validateId(id)}/read`)
+        .then((r) => r.data),
   },
 };

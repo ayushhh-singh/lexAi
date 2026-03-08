@@ -6,6 +6,7 @@ export type { Database, Tables, TablesInsert, TablesUpdate } from "./types/supab
 export * from "./schemas/auth.schema";
 export * from "./schemas/case.schema";
 export * from "./schemas/document.schema";
+export * from "./schemas/limitation.schema";
 
 export * from "./constants/practice-areas";
 export * from "./constants/court-levels";

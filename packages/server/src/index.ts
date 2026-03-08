@@ -13,6 +13,7 @@ import documentsRoutes from "./routes/documents.routes.js";
 import researchRoutes from "./routes/research.routes.js";
 import casesRoutes from "./routes/cases.routes.js";
 import paymentsRoutes from "./routes/payments.routes.js";
+import limitationRoutes from "./routes/limitation.routes.js";
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use("/api/documents", documentsRoutes);
 app.use("/api/research", researchRoutes);
 app.use("/api/cases", casesRoutes);
 app.use("/api/payments", paymentsRoutes);
+app.use("/api/limitation", limitationRoutes);
 
 // Global error handler
 app.use(errorHandler);
