@@ -26,6 +26,9 @@ import type {
   DeadlineNotification,
   CalculateLimitationInput,
   LimitationSuggestInput,
+  AnalyzeDocumentResponse,
+  DocumentAnalysisResult,
+  GenerateDocumentResponse,
 } from "@nyay/shared";
 import { supabase } from "./supabase";
 
@@ -214,6 +217,33 @@ export const api = {
     delete: (id: string) =>
       axiosInstance
         .delete<ApiResponse<void>>(`/documents/${validateId(id)}`)
+        .then((r) => r.data),
+    analyze: async (file: File, options?: { case_matter_id?: string; language?: string }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (options?.case_matter_id) formData.append("case_matter_id", options.case_matter_id);
+      if (options?.language) formData.append("language", options.language);
+      const token = await getAccessToken();
+      const response = await axiosInstance.post<ApiResponse<AnalyzeDocumentResponse>>(
+        "/documents/analyze",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          timeout: 120_000, // 2 min for extraction + analysis
+        }
+      );
+      return response.data;
+    },
+    getAnalysis: (id: string) =>
+      axiosInstance
+        .get<ApiResponse<DocumentAnalysisResult>>(`/documents/${validateId(id)}/analysis`)
+        .then((r) => r.data),
+    generateReport: (id: string) =>
+      axiosInstance
+        .post<ApiResponse<GenerateDocumentResponse>>(`/documents/${validateId(id)}/analysis/report`)
         .then((r) => r.data),
   },
 

@@ -92,6 +92,22 @@ const translations = {
   "research.unverified": { en: "Unverified", hi: "असत्यापित" },
   "research.browseActs": { en: "Browse Acts", hi: "अधिनियम ब्राउज़ करें" },
 
+  // ─── Document Analysis ─────────────────────────────────────────
+  "documents.title": { en: "Documents", hi: "दस्तावेज़" },
+  "documents.analyze": { en: "Analyze Document", hi: "दस्तावेज़ का विश्लेषण करें" },
+  "documents.upload": { en: "Upload Document", hi: "दस्तावेज़ अपलोड करें" },
+  "documents.analyzing": { en: "Analyzing document...", hi: "दस्तावेज़ का विश्लेषण हो रहा है..." },
+  "documents.summary": { en: "Executive Summary", hi: "कार्यकारी सारांश" },
+  "documents.keyIssues": { en: "Key Issues", hi: "प्रमुख मुद्दे" },
+  "documents.statutes": { en: "Relevant Statutes", hi: "संबंधित विधियाँ" },
+  "documents.risks": { en: "Risk Assessment", hi: "जोखिम मूल्यांकन" },
+  "documents.nextSteps": { en: "Next Steps", hi: "अगले कदम" },
+  "documents.askFollowUp": { en: "Ask Follow-up", hi: "अनुवर्ती प्रश्न पूछें" },
+  "documents.draftResponse": { en: "Draft Response", hi: "प्रतिक्रिया प्रारूप" },
+  "documents.generateReport": { en: "Generate Report (PDF)", hi: "रिपोर्ट तैयार करें (PDF)" },
+  "documents.noDocuments": { en: "No documents yet", hi: "अभी तक कोई दस्तावेज़ नहीं" },
+  "documents.searchPlaceholder": { en: "Search documents...", hi: "दस्तावेज़ खोजें..." },
+
   // ─── Drafts / Documents ──────────────────────────────────────────
   "drafts.title": { en: "Document Drafts", hi: "दस्तावेज़ प्रारूप" },
   "drafts.newDraft": { en: "New Draft", hi: "नया प्रारूप" },

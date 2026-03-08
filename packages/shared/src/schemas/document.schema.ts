@@ -31,6 +31,12 @@ export const documentFilterSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(20),
 });
 
+export const analyzeDocumentSchema = z.object({
+  case_matter_id: z.string().uuid().optional(),
+  language: z.enum(["en", "hi"]).default("en"),
+});
+
 export type UploadDocumentInput = z.infer<typeof uploadDocumentSchema>;
 export type DocumentFilterInput = z.infer<typeof documentFilterSchema>;
 export type GenerateDocumentInput = z.infer<typeof generateDocumentSchema>;
+export type AnalyzeDocumentInput = z.infer<typeof analyzeDocumentSchema>;

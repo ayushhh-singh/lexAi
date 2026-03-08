@@ -10,6 +10,7 @@ import { DraftResultPage } from "./pages/DraftResultPage";
 import { ResearchPage } from "./pages/ResearchPage";
 import { CasesPage } from "./pages/CasesPage";
 import { CaseDetailPage } from "./pages/CaseDetailPage";
+import { DocumentsPage } from "./pages/DocumentsPage";
 import { Placeholder } from "./pages/Placeholder";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
@@ -43,7 +44,7 @@ export default function App() {
             <Route path="drafts/result/:documentId" element={<DraftResultPage />} />
             <Route path="cases" element={<CasesPage />} />
             <Route path="cases/:id" element={<CaseDetailPage />} />
-            <Route path="documents" element={<Placeholder />} />
+            <Route path="documents" element={<DocumentsPage />} />
             <Route path="settings" element={<Placeholder />} />
           </Route>
         </Route>

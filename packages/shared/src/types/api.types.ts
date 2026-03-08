@@ -293,3 +293,50 @@ export interface DeadlineNotification {
   is_read: boolean;
   created_at: string;
 }
+
+// ─── Document Analysis ──────────────────────────────────────────────
+
+export type DocumentAnalysisStatus = "pending" | "extracting" | "analyzing" | "completed" | "failed";
+
+export interface DocumentAnalysisIssue {
+  title: string;
+  severity: "high" | "medium" | "low";
+  description: string;
+  recommendation: string;
+}
+
+export interface DocumentAnalysisStatute {
+  name: string;
+  section: string;
+  relevance: string;
+}
+
+export interface DocumentAnalysisRisk {
+  area: string;
+  level: "high" | "medium" | "low";
+  description: string;
+  mitigation: string;
+}
+
+export interface DocumentAnalysisResult {
+  id: string;
+  document_id: string;
+  summary: string;
+  key_issues: DocumentAnalysisIssue[];
+  relevant_statutes: DocumentAnalysisStatute[];
+  risk_assessment: DocumentAnalysisRisk[];
+  next_steps: string[];
+  extracted_text_length: number;
+  tokens_used: number;
+  analysis_time_ms: number;
+  created_at: string;
+}
+
+export interface AnalyzeDocumentResponse {
+  analysis: DocumentAnalysisResult;
+  document: DocumentListItem;
+}
+
+export interface DocumentWithAnalysis extends DocumentListItem {
+  analysis?: DocumentAnalysisResult | null;
+}
