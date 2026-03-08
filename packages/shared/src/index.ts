@@ -13,5 +13,7 @@ export * from "./constants/court-levels";
 export * from "./constants/document-types";
 export * from "./constants/feature-flags";
 export * from "./constants/indian-states";
+export * from "./constants/i18n";
+export * from "./constants/hindi-legal-terms";
 
 export * from "./utils/citation-patterns";

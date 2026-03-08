@@ -19,7 +19,7 @@ export function useStreamChat() {
   const abortRef = useRef<AbortController | null>(null);
 
   const send = useCallback(
-    async (body: { message: string; conversation_id: string; practice_area?: string }) => {
+    async (body: { message: string; conversation_id: string; practice_area?: string; language?: string }) => {
       // Abort any in-flight stream
       abortRef.current?.abort();
       const controller = new AbortController();

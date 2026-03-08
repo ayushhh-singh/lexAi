@@ -2,25 +2,27 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Menu, Search, ChevronRight, LogOut, User, Settings } from "lucide-react";
 import { useAuthStore } from "../../stores/auth.store";
+import { useTranslation } from "../../lib/i18n";
+import type { TranslationKey } from "../../lib/i18n";
 
 interface HeaderProps {
   onMobileMenuOpen: () => void;
 }
 
-const ROUTE_LABELS: Record<string, string> = {
-  "": "Dashboard",
-  chat: "Chat",
-  research: "Research",
-  drafts: "Drafts",
-  cases: "Cases",
-  documents: "Documents",
-  settings: "Settings",
+const ROUTE_KEYS: Record<string, TranslationKey> = {
+  "": "nav.dashboard",
+  chat: "nav.chat",
+  research: "nav.research",
+  drafts: "nav.drafts",
+  cases: "nav.cases",
+  documents: "nav.documents",
+  settings: "nav.settings",
 };
 
 export function Header({ onMobileMenuOpen }: HeaderProps) {
   const { pathname } = useLocation();
   const { profile, logout } = useAuthStore();
-  const [lang, setLang] = useState<"en" | "hi">("en");
+  const { t, language, setLanguage } = useTranslation();
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const avatarRef = useRef<HTMLDivElement>(null);
@@ -96,7 +98,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 font-heading text-sm text-gray-500">
         <Link to="/" className="hover:text-navy-600 transition-colors duration-150">
-          Dashboard
+          {t("nav.dashboard")}
         </Link>
         {segments.map((seg, i) => (
           <span key={`${seg}-${i}`} className="flex items-center gap-1">
@@ -107,7 +109,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
                 i === segments.length - 1 ? "text-navy-600 font-medium" : ""
               }`}
             >
-              {ROUTE_LABELS[seg] ?? seg}
+              {ROUTE_KEYS[seg] ? t(ROUTE_KEYS[seg]) : seg}
             </Link>
           </span>
         ))}
@@ -122,7 +124,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
           className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 font-heading text-sm text-gray-400 transition-colors duration-150 hover:border-gray-300 hover:bg-white"
         >
           <Search className="h-4 w-4" />
-          <span className="hidden sm:inline">Search...</span>
+          <span className="hidden sm:inline">{t("header.search")}</span>
           <kbd className="hidden rounded-lg border border-gray-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-gray-400 sm:inline">
             {/Mac|iPhone|iPad/.test(navigator.userAgent) ? "\u2318" : "Ctrl"}K
           </kbd>
@@ -135,12 +137,12 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search cases, documents, chats..."
+                placeholder={t("header.searchPlaceholder")}
                 className="flex-1 bg-transparent font-heading text-sm text-gray-900 outline-none placeholder:text-gray-400"
               />
             </div>
             <p className="mt-2 text-center font-heading text-xs text-gray-400">
-              Start typing to search
+              {t("header.startTyping")}
             </p>
           </div>
         )}
@@ -149,17 +151,17 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
       {/* Language Toggle */}
       <div className="flex items-center rounded-xl border border-gray-200 font-heading text-sm">
         <button
-          onClick={() => setLang("en")}
+          onClick={() => setLanguage("en")}
           className={`rounded-l-xl px-2.5 py-1 transition-colors duration-150 ${
-            lang === "en" ? "bg-navy-600 text-white" : "text-gray-500 hover:bg-gray-50"
+            language === "en" ? "bg-navy-600 text-white" : "text-gray-500 hover:bg-gray-50"
           }`}
         >
           EN
         </button>
         <button
-          onClick={() => setLang("hi")}
+          onClick={() => setLanguage("hi")}
           className={`rounded-r-xl px-2.5 py-1 transition-colors duration-150 ${
-            lang === "hi" ? "bg-navy-600 text-white" : "text-gray-500 hover:bg-gray-50"
+            language === "hi" ? "bg-navy-600 text-white" : "text-gray-500 hover:bg-gray-50"
           }`}
         >
           {"\u0939\u093F"}
@@ -168,7 +170,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
 
       {/* Credits Pill */}
       <div className={`rounded-xl px-3 py-1 font-heading text-xs font-semibold ${creditColor}`}>
-        {credits} credits
+        {credits} {t("header.credits")}
       </div>
 
       {/* Avatar Dropdown */}
@@ -204,7 +206,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
               className="flex items-center gap-2 px-4 py-2 font-heading text-sm text-gray-700 hover:bg-gray-50"
             >
               <User className="h-4 w-4" />
-              Profile
+              {t("header.profile")}
             </Link>
             <Link
               to="/settings"
@@ -212,7 +214,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
               className="flex items-center gap-2 px-4 py-2 font-heading text-sm text-gray-700 hover:bg-gray-50"
             >
               <Settings className="h-4 w-4" />
-              Settings
+              {t("header.settings")}
             </Link>
             <button
               onClick={() => {
@@ -222,7 +224,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
               className="flex w-full items-center gap-2 px-4 py-2 font-heading text-sm text-error hover:bg-gray-50"
             >
               <LogOut className="h-4 w-4" />
-              Sign out
+              {t("header.signOut")}
             </button>
           </div>
         )}

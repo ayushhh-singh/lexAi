@@ -75,7 +75,7 @@ router.delete("/conversations/:id", async (req: Request, res: Response, next) =>
 // URLs / server logs / proxy logs / browser history.
 router.post("/stream", requireCredits(1), async (req: Request, res: Response, next) => {
   try {
-    const { conversation_id: conversationId, message: userMessage } = req.body;
+    const { conversation_id: conversationId, message: userMessage, language } = req.body;
 
     if (!conversationId || typeof conversationId !== "string") {
       throw new AppError(400, "BAD_REQUEST", "conversation_id is required");
@@ -83,6 +83,9 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
     if (!userMessage || typeof userMessage !== "string") {
       throw new AppError(400, "BAD_REQUEST", "message is required");
     }
+
+    // Validate language — default to "en"; allowlist to prevent arbitrary values
+    const lang: "en" | "hi" = language === "hi" ? "hi" : "en";
 
     const MAX_MESSAGE_LENGTH = 10_000;
     if (userMessage.length > MAX_MESSAGE_LENGTH) {
@@ -111,8 +114,8 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
       .slice(-20)
       .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 
-    // 3. Build system prompt
-    const systemPrompt = buildLegalAssistantPrompt(req.user!);
+    // 3. Build system prompt (pass language for Hindi responses)
+    const systemPrompt = buildLegalAssistantPrompt(req.user!, lang);
 
     // 4. Auto-title on first user message
     if (history.filter((m) => m.role === "user").length <= 1) {

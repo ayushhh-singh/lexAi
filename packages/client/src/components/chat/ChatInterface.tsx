@@ -4,6 +4,7 @@ import { Scale, FileText, FileDown } from "lucide-react";
 import type { Message, Citation } from "@nyay/shared";
 import { api } from "../../lib/api-client";
 import { useStreamChat } from "../../hooks/useStreamChat";
+import { useTranslation } from "../../lib/i18n";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 
@@ -72,6 +73,7 @@ export function ChatInterface({ onConversationCreated }: ChatInterfaceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { streamedText, isStreaming, citations, error, send } = useStreamChat();
+  const { language } = useTranslation();
 
   // Load messages when conversationId changes
   useEffect(() => {
@@ -158,9 +160,9 @@ export function ChatInterface({ onConversationCreated }: ChatInterfaceProps) {
       if (!activeConvId) return;
 
       addUserMessage(message, activeConvId);
-      send({ message, conversation_id: activeConvId, practice_area: practiceArea ?? undefined });
+      send({ message, conversation_id: activeConvId, practice_area: practiceArea ?? undefined, language });
     },
-    [conversationId, practiceArea, onConversationCreated, navigate, addUserMessage, send],
+    [conversationId, practiceArea, language, onConversationCreated, navigate, addUserMessage, send],
   );
 
   const handleSend = useCallback(

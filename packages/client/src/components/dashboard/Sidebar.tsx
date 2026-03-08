@@ -12,16 +12,19 @@ import {
   X,
   Scale,
 } from "lucide-react";
+import { useTranslation } from "../../lib/i18n";
+import type { TranslationKey } from "../../lib/i18n";
+import type { LucideIcon } from "lucide-react";
 
-const NAV_ITEMS = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/chat", icon: MessageSquare, label: "Chat" },
-  { to: "/research", icon: Search, label: "Research" },
-  { to: "/drafts", icon: FileEdit, label: "Drafts" },
-  { to: "/cases", icon: Briefcase, label: "Cases" },
-  { to: "/documents", icon: FolderOpen, label: "Documents" },
-  { to: "/settings", icon: Settings, label: "Settings" },
-] as const;
+const NAV_ITEMS: { to: string; icon: LucideIcon; labelKey: TranslationKey }[] = [
+  { to: "/", icon: LayoutDashboard, labelKey: "nav.dashboard" },
+  { to: "/chat", icon: MessageSquare, labelKey: "nav.chat" },
+  { to: "/research", icon: Search, labelKey: "nav.research" },
+  { to: "/drafts", icon: FileEdit, labelKey: "nav.drafts" },
+  { to: "/cases", icon: Briefcase, labelKey: "nav.cases" },
+  { to: "/documents", icon: FolderOpen, labelKey: "nav.documents" },
+  { to: "/settings", icon: Settings, labelKey: "nav.settings" },
+];
 
 interface SidebarProps {
   collapsed: boolean;
@@ -32,6 +35,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
   const { pathname } = useLocation();
+  const { t } = useTranslation();
 
   const sidebarContent = (
     <div
@@ -53,7 +57,8 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
 
       {/* Nav Items */}
       <nav className="mt-4 flex-1 space-y-1 px-3">
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+        {NAV_ITEMS.map(({ to, icon: Icon, labelKey }) => {
+          const label = t(labelKey);
           const isActive = to === "/" ? pathname === "/" : pathname.startsWith(to);
           return (
             <NavLink
@@ -81,7 +86,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-white/60 transition-colors duration-150 hover:bg-white/5 hover:text-white"
         >
           {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-          {!collapsed && <span className="font-heading text-sm">Collapse</span>}
+          {!collapsed && <span className="font-heading text-sm">{t("nav.collapse")}</span>}
         </button>
       </div>
     </div>

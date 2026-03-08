@@ -1,17 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { AppLanguage } from "@nyay/shared";
 
 type Theme = "light" | "dark";
-type Language = "en" | "hi";
 
 interface UIState {
   sidebarOpen: boolean;
   theme: Theme;
-  language: Language;
+  language: AppLanguage;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setTheme: (theme: Theme) => void;
-  setLanguage: (language: Language) => void;
+  setLanguage: (language: AppLanguage) => void;
 }
 
 export const useUIStore = create<UIState>()(

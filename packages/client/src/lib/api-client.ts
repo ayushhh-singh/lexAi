@@ -124,7 +124,7 @@ export const api = {
   },
 
   chat: {
-    stream: async (body: { message: string; conversation_id: string; practice_area?: string }, signal?: AbortSignal) => {
+    stream: async (body: { message: string; conversation_id: string; practice_area?: string; language?: string }, signal?: AbortSignal) => {
       const token = await getAccessToken();
       const response = await fetch(`${BASE_URL}/chat/stream`, {
         method: "POST",

@@ -5,7 +5,7 @@ export const FEATURE_FLAGS = {
   PAYMENT_GATEWAY: true,
   LAWYER_MARKETPLACE: false,
   VIDEO_CONSULTATION: false,
-  MULTI_LANGUAGE: false,
+  MULTI_LANGUAGE: true,
   DOCUMENT_E_SIGN: false,
 } as const;
 

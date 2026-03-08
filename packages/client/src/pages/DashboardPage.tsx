@@ -17,28 +17,40 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../stores/auth.store";
 import { DashboardSkeleton } from "../components/dashboard/Skeletons";
+import { useTranslation } from "../lib/i18n";
+import type { TranslationKey } from "../lib/i18n";
+import type { LucideIcon } from "lucide-react";
 
 interface ChecklistStep {
   id: string;
-  label: string;
-  description: string;
+  labelKey: TranslationKey;
+  descKey: TranslationKey;
   done: boolean;
   link: string;
 }
 
 const INITIAL_STEPS: ChecklistStep[] = [
-  { id: "profile", label: "Complete your profile", description: "Add bar council ID and practice areas", done: false, link: "/settings" },
-  { id: "case", label: "Create your first case", description: "Organize matters by case for better AI context", done: false, link: "/cases" },
-  { id: "chat", label: "Start an AI conversation", description: "Ask a legal question or analyze a document", done: false, link: "/chat" },
-  { id: "draft", label: "Draft a legal document", description: "Generate petitions, notices, or contracts", done: false, link: "/drafts" },
+  { id: "profile", labelKey: "dashboard.step.profile.label", descKey: "dashboard.step.profile.desc", done: false, link: "/settings" },
+  { id: "case", labelKey: "dashboard.step.case.label", descKey: "dashboard.step.case.desc", done: false, link: "/cases" },
+  { id: "chat", labelKey: "dashboard.step.chat.label", descKey: "dashboard.step.chat.desc", done: false, link: "/chat" },
+  { id: "draft", labelKey: "dashboard.step.draft.label", descKey: "dashboard.step.draft.desc", done: false, link: "/drafts" },
 ];
 
-const QUICK_ACTIONS = [
-  { to: "/research", icon: Search, label: "Research", description: "Search case law & statutes", color: "bg-accent/10 text-accent", iconBg: "bg-accent/10" },
-  { to: "/drafts", icon: FileEdit, label: "Draft", description: "Generate legal documents", color: "bg-success/10 text-success-dark", iconBg: "bg-success/10" },
-  { to: "/chat", icon: MessageSquare, label: "Chat", description: "AI legal assistant", color: "bg-navy-100 text-navy-600", iconBg: "bg-navy-100" },
-  { to: "/cases", icon: Briefcase, label: "Cases", description: "Manage your matters", color: "bg-warning/10 text-warning-dark", iconBg: "bg-warning/10" },
-] as const;
+interface QuickAction {
+  to: string;
+  icon: LucideIcon;
+  labelKey: TranslationKey;
+  descKey: TranslationKey;
+  color: string;
+  iconBg: string;
+}
+
+const QUICK_ACTIONS: QuickAction[] = [
+  { to: "/research", icon: Search, labelKey: "dashboard.action.research", descKey: "dashboard.action.research.desc", color: "bg-accent/10 text-accent", iconBg: "bg-accent/10" },
+  { to: "/drafts", icon: FileEdit, labelKey: "dashboard.action.draft", descKey: "dashboard.action.draft.desc", color: "bg-success/10 text-success-dark", iconBg: "bg-success/10" },
+  { to: "/chat", icon: MessageSquare, labelKey: "dashboard.action.chat", descKey: "dashboard.action.chat.desc", color: "bg-navy-100 text-navy-600", iconBg: "bg-navy-100" },
+  { to: "/cases", icon: Briefcase, labelKey: "dashboard.action.cases", descKey: "dashboard.action.cases.desc", color: "bg-warning/10 text-warning-dark", iconBg: "bg-warning/10" },
+];
 
 // Mock data — will be replaced with API calls
 const MOCK_CONVERSATIONS = [
@@ -67,6 +79,7 @@ const DEADLINE_ICON_MAP = {
 
 export function DashboardPage() {
   const { profile } = useAuthStore();
+  const { t } = useTranslation();
   const [steps, setSteps] = useState(INITIAL_STEPS);
   const [checklistDismissed, setChecklistDismissed] = useState(false);
   const [loading] = useState(false);
@@ -87,10 +100,10 @@ export function DashboardPage() {
       {/* Greeting */}
       <div>
         <h1 className="font-heading text-2xl font-bold text-gray-900">
-          Welcome back, {firstName}
+          {t("dashboard.welcome", { name: firstName })}
         </h1>
         <p className="mt-1 font-heading text-sm text-gray-500">
-          Here's what's happening with your practice today.
+          {t("dashboard.subtitle")}
         </p>
       </div>
 
@@ -100,10 +113,10 @@ export function DashboardPage() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="font-heading text-base font-semibold text-gray-900">
-                Getting Started
+                {t("dashboard.gettingStarted")}
               </h2>
               <p className="mt-0.5 font-heading text-xs text-gray-500">
-                {completedCount} of {steps.length} completed
+                {t("dashboard.completedOf", { done: completedCount, total: steps.length })}
               </p>
             </div>
             {allDone && (
@@ -142,9 +155,9 @@ export function DashboardPage() {
                       step.done ? "text-gray-400 line-through" : "text-gray-900"
                     }`}
                   >
-                    {step.label}
+                    {t(step.labelKey)}
                   </span>
-                  <p className="font-heading text-xs text-gray-400">{step.description}</p>
+                  <p className="font-heading text-xs text-gray-400">{t(step.descKey)}</p>
                 </div>
                 {!step.done && (
                   <Link
@@ -152,7 +165,7 @@ export function DashboardPage() {
                     onClick={(e) => e.stopPropagation()}
                     className="rounded-xl px-2.5 py-1 font-heading text-xs font-medium text-accent hover:bg-accent/10"
                   >
-                    Start
+                    {t("dashboard.start")}
                   </Link>
                 )}
               </button>
@@ -163,7 +176,7 @@ export function DashboardPage() {
 
       {/* Quick Actions 2x2 */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {QUICK_ACTIONS.map(({ to, icon: Icon, label, description, color, iconBg }) => (
+        {QUICK_ACTIONS.map(({ to, icon: Icon, labelKey, descKey, color, iconBg }) => (
           <Link
             key={to}
             to={to}
@@ -172,10 +185,10 @@ export function DashboardPage() {
             <div className={`mb-3 inline-flex rounded-xl p-2.5 ${iconBg}`}>
               <Icon className={`h-5 w-5 ${color.split(" ")[1]}`} />
             </div>
-            <h3 className="font-heading text-sm font-semibold text-gray-900">{label}</h3>
-            <p className="mt-0.5 font-heading text-xs text-gray-500">{description}</p>
+            <h3 className="font-heading text-sm font-semibold text-gray-900">{t(labelKey)}</h3>
+            <p className="mt-0.5 font-heading text-xs text-gray-500">{t(descKey)}</p>
             <div className="mt-3 flex items-center gap-1 font-heading text-xs font-medium text-accent opacity-0 transition-opacity duration-150 group-hover:opacity-100">
-              Get started <ArrowRight className="h-3 w-3" />
+              {t("dashboard.getStarted")} <ArrowRight className="h-3 w-3" />
             </div>
           </Link>
         ))}
@@ -187,13 +200,13 @@ export function DashboardPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-heading text-base font-semibold text-gray-900">
-              Recent Conversations
+              {t("dashboard.recentConversations")}
             </h2>
             <Link
               to="/chat"
               className="font-heading text-xs font-medium text-accent hover:text-accent-dark"
             >
-              View all
+              {t("dashboard.viewAll")}
             </Link>
           </div>
           <div className="space-y-1">
@@ -219,13 +232,13 @@ export function DashboardPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-heading text-base font-semibold text-gray-900">
-              Upcoming Deadlines
+              {t("dashboard.upcomingDeadlines")}
             </h2>
             <Link
               to="/cases"
               className="font-heading text-xs font-medium text-accent hover:text-accent-dark"
             >
-              View all
+              {t("dashboard.viewAll")}
             </Link>
           </div>
           <div className="space-y-1">
@@ -264,18 +277,18 @@ export function DashboardPage() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {[
-          { label: "Active Cases", value: profile?.total_cases ?? 0, icon: Briefcase },
-          { label: "AI Credits", value: profile?.ai_credits ?? 0, icon: TrendingUp },
-          { label: "Win Rate", value: `${profile?.win_rate ?? 0}%`, icon: Scale },
-          { label: "Documents", value: "—", icon: FileText },
-        ].map(({ label, value, icon: StatIcon }) => (
+        {([
+          { labelKey: "dashboard.stat.activeCases" as const, value: profile?.total_cases ?? 0, icon: Briefcase },
+          { labelKey: "dashboard.stat.aiCredits" as const, value: profile?.ai_credits ?? 0, icon: TrendingUp },
+          { labelKey: "dashboard.stat.winRate" as const, value: `${profile?.win_rate ?? 0}%`, icon: Scale },
+          { labelKey: "dashboard.stat.documents" as const, value: "—", icon: FileText },
+        ]).map(({ labelKey, value, icon: StatIcon }) => (
           <div
-            key={label}
+            key={labelKey}
             className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
           >
             <div className="flex items-center justify-between">
-              <p className="font-heading text-xs font-medium text-gray-500">{label}</p>
+              <p className="font-heading text-xs font-medium text-gray-500">{t(labelKey)}</p>
               <StatIcon className="h-4 w-4 text-gray-400" />
             </div>
             <p className="mt-1 font-heading text-2xl font-bold text-gray-900">{value}</p>
