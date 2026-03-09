@@ -1,13 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Menu, Search, ChevronRight, LogOut, User, Settings } from "lucide-react";
+import { Search, ChevronRight, LogOut, User, Settings } from "lucide-react";
 import { useAuthStore } from "../../stores/auth.store";
 import { useTranslation } from "../../lib/i18n";
 import type { TranslationKey } from "../../lib/i18n";
-
-interface HeaderProps {
-  onMobileMenuOpen: () => void;
-}
 
 const ROUTE_KEYS: Record<string, TranslationKey> = {
   "": "nav.dashboard",
@@ -20,7 +16,7 @@ const ROUTE_KEYS: Record<string, TranslationKey> = {
   settings: "nav.settings",
 };
 
-export function Header({ onMobileMenuOpen }: HeaderProps) {
+export function Header() {
   const { pathname } = useLocation();
   const { profile, logout } = useAuthStore();
   const { t, language, setLanguage } = useTranslation();
@@ -86,18 +82,9 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
       .toUpperCase() || "U";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 lg:px-6">
-      {/* Mobile menu button */}
-      <button
-        onClick={onMobileMenuOpen}
-        aria-label="Open navigation menu"
-        className="rounded-xl p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
-
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1 font-heading text-sm text-gray-500">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-gray-200 bg-white px-4 lg:h-16 lg:gap-4 lg:px-6">
+      {/* Breadcrumb — hidden on mobile (bottom nav handles navigation) */}
+      <nav className="hidden items-center gap-1 font-heading text-sm text-gray-500 lg:flex">
         <Link to="/" className="hover:text-navy-600 transition-colors duration-150">
           {t("nav.dashboard")}
         </Link>
@@ -116,17 +103,24 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
         ))}
       </nav>
 
+      {/* Mobile: show current page title */}
+      <h1 className="font-heading text-base font-semibold text-navy-600 lg:hidden">
+        {segments.length > 0 && ROUTE_KEYS[segments[0]]
+          ? t(ROUTE_KEYS[segments[0]])
+          : t("nav.dashboard")}
+      </h1>
+
       <div className="flex-1" />
 
-      {/* Search */}
-      <div ref={searchRef} className="relative">
+      {/* Search — desktop only */}
+      <div ref={searchRef} className="relative hidden sm:block">
         <button
           onClick={() => setSearchOpen(true)}
-          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 font-heading text-sm text-gray-400 transition-colors duration-150 hover:border-gray-300 hover:bg-white"
+          className="flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 font-heading text-sm text-gray-400 transition-colors duration-150 hover:border-gray-300 hover:bg-white"
         >
           <Search className="h-4 w-4" />
-          <span className="hidden sm:inline">{t("header.search")}</span>
-          <kbd className="hidden rounded-lg border border-gray-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-gray-400 sm:inline">
+          <span>{t("header.search")}</span>
+          <kbd className="rounded-lg border border-gray-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-gray-400">
             {/Mac|iPhone|iPad/.test(navigator.userAgent) ? "\u2318" : "Ctrl"}K
           </kbd>
         </button>
@@ -153,7 +147,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
       <div className="flex items-center rounded-xl border border-gray-200 font-heading text-sm">
         <button
           onClick={() => setLanguage("en")}
-          className={`rounded-l-xl px-2.5 py-1 transition-colors duration-150 ${
+          className={`min-h-[36px] min-w-[36px] rounded-l-xl px-2.5 transition-colors duration-150 lg:min-h-0 lg:min-w-0 lg:py-1 ${
             language === "en" ? "bg-navy-600 text-white" : "text-gray-500 hover:bg-gray-50"
           }`}
         >
@@ -161,7 +155,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
         </button>
         <button
           onClick={() => setLanguage("hi")}
-          className={`rounded-r-xl px-2.5 py-1 transition-colors duration-150 ${
+          className={`min-h-[36px] min-w-[36px] rounded-r-xl px-2.5 transition-colors duration-150 lg:min-h-0 lg:min-w-0 lg:py-1 ${
             language === "hi" ? "bg-navy-600 text-white" : "text-gray-500 hover:bg-gray-50"
           }`}
         >
@@ -170,7 +164,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
       </div>
 
       {/* Credits Pill */}
-      <div className={`rounded-xl px-3 py-1 font-heading text-xs font-semibold ${creditColor}`}>
+      <div className={`hidden rounded-xl px-3 py-1 font-heading text-xs font-semibold sm:block ${creditColor}`}>
         {credits} {t("header.credits")}
       </div>
 
@@ -180,7 +174,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
           onClick={() => setAvatarOpen((v) => !v)}
           aria-label="User menu"
           aria-expanded={avatarOpen}
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-navy-600 font-heading text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-600 font-heading text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 lg:h-9 lg:w-9"
         >
           {profile?.avatar_url ? (
             <img
@@ -204,7 +198,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
             <Link
               to="/settings"
               onClick={() => setAvatarOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 font-heading text-sm text-gray-700 hover:bg-gray-50"
+              className="flex h-12 items-center gap-2 px-4 font-heading text-sm text-gray-700 hover:bg-gray-50"
             >
               <User className="h-4 w-4" />
               {t("header.profile")}
@@ -212,7 +206,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
             <Link
               to="/settings"
               onClick={() => setAvatarOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 font-heading text-sm text-gray-700 hover:bg-gray-50"
+              className="flex h-12 items-center gap-2 px-4 font-heading text-sm text-gray-700 hover:bg-gray-50"
             >
               <Settings className="h-4 w-4" />
               {t("header.settings")}
@@ -222,7 +216,7 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
                 setAvatarOpen(false);
                 logout();
               }}
-              className="flex w-full items-center gap-2 px-4 py-2 font-heading text-sm text-error hover:bg-gray-50"
+              className="flex h-12 w-full items-center gap-2 px-4 font-heading text-sm text-error hover:bg-gray-50"
             >
               <LogOut className="h-4 w-4" />
               {t("header.signOut")}

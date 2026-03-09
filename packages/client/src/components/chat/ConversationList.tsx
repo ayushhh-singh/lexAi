@@ -7,6 +7,7 @@ import { api } from "../../lib/api-client";
 interface ConversationListProps {
   onNewConversation: () => void;
   refreshKey: number;
+  onSelect?: () => void;
 }
 
 function groupConversations(conversations: Conversation[]) {
@@ -30,7 +31,7 @@ function groupConversations(conversations: Conversation[]) {
   return groups.filter((g) => g.items.length > 0);
 }
 
-export function ConversationList({ onNewConversation, refreshKey }: ConversationListProps) {
+export function ConversationList({ onNewConversation, refreshKey, onSelect }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -80,7 +81,7 @@ export function ConversationList({ onNewConversation, refreshKey }: Conversation
         <h2 className="font-heading text-lg font-semibold text-navy-600">Chats</h2>
         <button
           onClick={onNewConversation}
-          className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy-600 text-white transition-colors duration-150 hover:bg-navy-500"
+          className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-600 text-white transition-colors duration-150 hover:bg-navy-500 lg:h-9 lg:w-9"
           title="New Conversation"
         >
           <Plus className="h-4 w-4" />
@@ -124,9 +125,9 @@ export function ConversationList({ onNewConversation, refreshKey }: Conversation
                   key={conv.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(`/chat/${conv.id}`)}
+                  onClick={() => { navigate(`/chat/${conv.id}`); onSelect?.(); }}
                   onKeyDown={(e) => { if (e.key === "Enter") navigate(`/chat/${conv.id}`); }}
-                  className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${
+                  className={`group flex min-h-[48px] w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${
                     activeId === conv.id
                       ? "bg-navy-50 text-navy-600"
                       : "text-gray-600 hover:bg-gray-50"

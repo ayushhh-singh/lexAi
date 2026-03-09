@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Scale, FileText, FileDown } from "lucide-react";
+import { Scale, FileText, FileDown, List } from "lucide-react";
 import type { Message, Citation } from "@nyay/shared";
 import { api } from "../../lib/api-client";
 import { useStreamChat } from "../../hooks/useStreamChat";
@@ -34,21 +34,21 @@ function DocGenCard({ onGenerate, onContinue }: DocGenCardProps) {
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => onGenerate("docx")}
-          className="flex items-center gap-1.5 rounded-lg bg-navy-600 px-4 py-2 font-heading text-sm font-medium text-white transition-colors duration-150 hover:bg-navy-500"
+          className="flex min-h-[48px] items-center gap-1.5 rounded-lg bg-navy-600 px-4 py-2 font-heading text-sm font-medium text-white transition-colors duration-150 hover:bg-navy-500 lg:min-h-0"
         >
           <FileDown className="h-4 w-4" />
           Generate DOCX
         </button>
         <button
           onClick={() => onGenerate("pdf")}
-          className="flex items-center gap-1.5 rounded-lg bg-navy-600 px-4 py-2 font-heading text-sm font-medium text-white transition-colors duration-150 hover:bg-navy-500"
+          className="flex min-h-[48px] items-center gap-1.5 rounded-lg bg-navy-600 px-4 py-2 font-heading text-sm font-medium text-white transition-colors duration-150 hover:bg-navy-500 lg:min-h-0"
         >
           <FileDown className="h-4 w-4" />
           Generate PDF
         </button>
         <button
           onClick={onContinue}
-          className="rounded-lg border border-gray-200 px-4 py-2 font-heading text-sm font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-50"
+          className="min-h-[48px] rounded-lg border border-gray-200 px-4 py-2 font-heading text-sm font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-50 lg:min-h-0"
         >
           Continue as text
         </button>
@@ -59,9 +59,10 @@ function DocGenCard({ onGenerate, onContinue }: DocGenCardProps) {
 
 interface ChatInterfaceProps {
   onConversationCreated: () => void;
+  onOpenConversations?: () => void;
 }
 
-export function ChatInterface({ onConversationCreated }: ChatInterfaceProps) {
+export function ChatInterface({ onConversationCreated, onOpenConversations }: ChatInterfaceProps) {
   const { id: conversationId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -198,10 +199,25 @@ export function ChatInterface({ onConversationCreated }: ChatInterfaceProps) {
     setPendingDraftMessage(null);
   }, [pendingDraftMessage, sendMessage]);
 
+  const mobileConvButton = onOpenConversations ? (
+    <button
+      onClick={onOpenConversations}
+      className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 lg:hidden"
+      aria-label="Open conversations"
+    >
+      <List className="h-5 w-5" />
+    </button>
+  ) : null;
+
   // Empty state (no conversation selected and no messages)
   if (!conversationId && messages.length === 0 && !isStreaming) {
     return (
       <div className="flex h-full flex-col">
+        {mobileConvButton && (
+          <div className="flex items-center px-3 pt-2 lg:hidden">
+            {mobileConvButton}
+          </div>
+        )}
         <div className="flex flex-1 flex-col items-center justify-center px-4">
           <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-navy-50">
             <Scale className="h-8 w-8 text-navy-600" />
@@ -217,7 +233,7 @@ export function ChatInterface({ onConversationCreated }: ChatInterfaceProps) {
               <button
                 key={prompt}
                 onClick={() => handleSend(prompt)}
-                className="rounded-full border border-gray-200 bg-white px-4 py-2 font-heading text-sm text-gray-600 shadow-sm transition-all duration-150 hover:border-accent/30 hover:bg-accent/5 hover:shadow-md"
+                className="min-h-[48px] rounded-full border border-gray-200 bg-white px-4 py-2 font-heading text-sm text-gray-600 shadow-sm transition-all duration-150 hover:border-accent/30 hover:bg-accent/5 hover:shadow-md lg:min-h-0"
               >
                 {prompt}
               </button>
@@ -236,8 +252,13 @@ export function ChatInterface({ onConversationCreated }: ChatInterfaceProps) {
 
   return (
     <div className="flex h-full flex-col">
+      {mobileConvButton && (
+        <div className="flex items-center px-3 pt-2 lg:hidden">
+          {mobileConvButton}
+        </div>
+      )}
       {/* Messages */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-6">
+      <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-4 lg:py-6">
         <div className="mx-auto max-w-3xl space-y-4">
           {loading ? (
             <div className="space-y-4">

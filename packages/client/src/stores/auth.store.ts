@@ -133,6 +133,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     set({ user: null, session: null, profile: null });
     // Allow re-initialization after logout
     initPromise = null;
+    // Clear cached API data to prevent cross-user data leaks
+    navigator.serviceWorker?.controller?.postMessage({ type: "CLEAR_API_CACHE" });
   },
 
   setProfile: (profile) => set({ profile }),

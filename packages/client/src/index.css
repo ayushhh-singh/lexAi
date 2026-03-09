@@ -7,6 +7,8 @@
 @layer base {
   body {
     @apply m-0 min-h-screen bg-gray-50 font-heading text-gray-900 antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
   }
 
   h1, h2, h3, h4, h5, h6 {

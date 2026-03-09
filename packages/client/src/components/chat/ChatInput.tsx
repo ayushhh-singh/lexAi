@@ -58,7 +58,7 @@ export function ChatInput({ onSend, disabled, practiceArea, onPracticeAreaChange
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setContextOpen(!contextOpen)}
-            className="flex items-center gap-1 rounded-lg px-2 py-1.5 font-heading text-xs text-gray-500 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-700"
+            className="flex min-h-[44px] items-center gap-1 rounded-lg px-2 py-1.5 font-heading text-xs text-gray-500 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-700 lg:min-h-0"
             type="button"
           >
             {PRACTICE_AREAS.find((a) => a.id === practiceArea)?.label ?? "General"}
@@ -71,7 +71,7 @@ export function ChatInput({ onSend, disabled, practiceArea, onPracticeAreaChange
                   onPracticeAreaChange(null);
                   setContextOpen(false);
                 }}
-                className={`w-full px-3 py-2 text-left font-heading text-sm transition-colors duration-150 hover:bg-gray-50 ${
+                className={`w-full min-h-[44px] px-3 py-2 text-left font-heading text-sm transition-colors duration-150 hover:bg-gray-50 lg:min-h-0 ${
                   !practiceArea ? "text-accent font-medium" : "text-gray-600"
                 }`}
               >
@@ -84,7 +84,7 @@ export function ChatInput({ onSend, disabled, practiceArea, onPracticeAreaChange
                     onPracticeAreaChange(area.id);
                     setContextOpen(false);
                   }}
-                  className={`w-full px-3 py-2 text-left font-heading text-sm transition-colors duration-150 hover:bg-gray-50 ${
+                  className={`w-full min-h-[44px] px-3 py-2 text-left font-heading text-sm transition-colors duration-150 hover:bg-gray-50 lg:min-h-0 ${
                     practiceArea === area.id ? "text-accent font-medium" : "text-gray-600"
                   }`}
                 >
@@ -111,7 +111,7 @@ export function ChatInput({ onSend, disabled, practiceArea, onPracticeAreaChange
         <button
           onClick={handleSubmit}
           disabled={disabled || !text.trim()}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-600 text-white transition-all duration-150 hover:bg-navy-500 disabled:opacity-40 disabled:hover:bg-navy-600"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy-600 text-white transition-all duration-150 hover:bg-navy-500 disabled:opacity-40 disabled:hover:bg-navy-600 lg:h-9 lg:w-9"
         >
           <Send className="h-4 w-4" />
         </button>

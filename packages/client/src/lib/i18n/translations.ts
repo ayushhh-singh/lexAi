@@ -14,6 +14,7 @@ const translations = {
   "nav.documents": { en: "Documents", hi: "दस्तावेज़" },
   "nav.settings": { en: "Settings", hi: "सेटिंग्स" },
   "nav.collapse": { en: "Collapse", hi: "छोटा करें" },
+  "nav.more": { en: "More", hi: "और" },
 
   // ─── Header ──────────────────────────────────────────────────────
   "header.search": { en: "Search...", hi: "खोजें..." },
