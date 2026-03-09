@@ -48,6 +48,8 @@ export default {
         "slide-up": "slideUp 300ms ease-out",
         "slide-right": "slideRight 200ms ease-out",
         blink: "blink 1s step-end infinite",
+        "gradient-mesh": "gradientMesh 12s ease infinite",
+        "fade-in-up": "fadeInUp 600ms ease-out both",
       },
       keyframes: {
         fadeIn: {
@@ -65,6 +67,14 @@ export default {
         blink: {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0" },
+        },
+        gradientMesh: {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        fadeInUp: {
+          from: { opacity: "0", transform: "translateY(24px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
       },
     },
