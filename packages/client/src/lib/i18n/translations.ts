@@ -212,6 +212,39 @@ const translations = {
   "error.notFound": { en: "Page not found", hi: "पृष्ठ नहीं मिला" },
   "error.network": { en: "Network error. Please check your connection.", hi: "नेटवर्क त्रुटि। कृपया कनेक्शन जाँचें।" },
   "error.creditsExhausted": { en: "AI credits exhausted. Upgrade your plan.", hi: "AI क्रेडिट समाप्त। अपना प्लान अपग्रेड करें।" },
+
+  // ─── Billing / Pricing ─────────────────────────────────────────
+  "billing.title": { en: "Billing & Plans", hi: "बिलिंग और प्लान" },
+  "billing.currentPlan": { en: "Current Plan", hi: "वर्तमान प्लान" },
+  "billing.betaPlan": { en: "Beta Plan", hi: "बीटा प्लान" },
+  "billing.betaPlanDesc": { en: "All features are free during beta. Your usage is being tracked.", hi: "बीटा के दौरान सभी सुविधाएँ मुफ्त हैं। आपका उपयोग ट्रैक किया जा रहा है।" },
+  "billing.usageThisMonth": { en: "Your usage this month", hi: "इस महीने आपका उपयोग" },
+  "billing.equivalentCost": { en: "would cost {amount} on {plan}", hi: "{plan} पर {amount} लागत होगी" },
+  "billing.creditsUsed": { en: "Credits Used", hi: "उपयोग किए गए क्रेडिट" },
+  "billing.queriesToday": { en: "Queries Today", hi: "आज की क्वेरी" },
+  "billing.skillsDocs": { en: "Skills Documents", hi: "स्किल्स दस्तावेज़" },
+  "billing.history": { en: "Billing History", hi: "बिलिंग इतिहास" },
+  "billing.noHistory": { en: "No billing history yet", hi: "अभी तक कोई बिलिंग इतिहास नहीं" },
+  "billing.upgrade": { en: "Upgrade", hi: "अपग्रेड" },
+  "billing.cancelSubscription": { en: "Cancel Subscription", hi: "सदस्यता रद्द करें" },
+  "billing.cancelConfirm": { en: "Are you sure you want to cancel?", hi: "क्या आप वाकई रद्द करना चाहते हैं?" },
+
+  "pricing.title": { en: "Choose Your Plan", hi: "अपना प्लान चुनें" },
+  "pricing.free": { en: "Free", hi: "मुफ्त" },
+  "pricing.starter": { en: "Starter", hi: "स्टार्टर" },
+  "pricing.professional": { en: "Professional", hi: "प्रोफेशनल" },
+  "pricing.perMonth": { en: "/month", hi: "/महीना" },
+  "pricing.currentPlan": { en: "Current Plan", hi: "वर्तमान प्लान" },
+  "pricing.popular": { en: "Most Popular", hi: "सबसे लोकप्रिय" },
+
+  "beta.bannerText": { en: "Beta — All Features Free. Share feedback!", hi: "बीटा — सभी सुविधाएँ मुफ्त। प्रतिक्रिया दें!" },
+
+  "feedback.helpful": { en: "Was this helpful?", hi: "क्या यह सहायक था?" },
+  "feedback.placeholder": { en: "Any additional feedback? (optional)", hi: "कोई अतिरिक्त प्रतिक्रिया? (वैकल्पिक)" },
+  "feedback.submit": { en: "Submit Feedback", hi: "प्रतिक्रिया भेजें" },
+  "feedback.thanks": { en: "Thanks for your feedback!", hi: "आपकी प्रतिक्रिया के लिए धन्यवाद!" },
+
+  "nav.billing": { en: "Billing", hi: "बिलिंग" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

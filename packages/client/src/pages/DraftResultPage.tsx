@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { api } from "../lib/api-client";
 import type { LegalDocument, Citation } from "@nyay/shared";
+import { FeedbackWidget } from "../components/billing/FeedbackWidget";
 
 interface GeneratedDocument {
   id: string;
@@ -265,6 +266,18 @@ export function DraftResultPage() {
                 Save to Case
               </button>
             </div>
+          </div>
+
+          {/* Feedback */}
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-3 font-heading text-sm font-semibold text-gray-900">
+              Feedback
+            </h3>
+            <FeedbackWidget
+              feature="document_generation"
+              responseId={document.id}
+              metadata={{ template: templateId }}
+            />
           </div>
 
           {/* Citations panel */}

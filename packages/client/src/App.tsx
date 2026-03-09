@@ -12,6 +12,7 @@ import { CasesPage } from "./pages/CasesPage";
 import { CaseDetailPage } from "./pages/CaseDetailPage";
 import { DocumentsPage } from "./pages/DocumentsPage";
 import { Placeholder } from "./pages/Placeholder";
+import { BillingPage } from "./pages/BillingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="cases" element={<CasesPage />} />
             <Route path="cases/:id" element={<CaseDetailPage />} />
             <Route path="documents" element={<DocumentsPage />} />
+            <Route path="billing" element={<BillingPage />} />
             <Route path="settings" element={<Placeholder />} />
           </Route>
         </Route>

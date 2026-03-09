@@ -1,7 +1,75 @@
 // Types matching Supabase schema (supabase/migrations/20240101000000_initial_schema.sql)
 // Regenerate with: npx supabase gen types typescript --local > packages/shared/src/types/database.types.ts
 
-export type SubscriptionTier = "free" | "pro" | "enterprise";
+export type SubscriptionTier = "free" | "starter" | "professional";
+
+export type CreditAction = "chat" | "research" | "analysis" | "text_draft" | "skills_doc";
+
+export const CREDIT_COSTS: Record<CreditAction, number> = {
+  chat: 1,
+  research: 2,
+  analysis: 5,
+  text_draft: 8,
+  skills_doc: 15,
+} as const;
+
+export interface SubscriptionPlan {
+  tier: SubscriptionTier;
+  name: string;
+  price_inr: number;
+  credits_per_month: number;
+  queries_per_day: number | null;
+  skills_docs_per_month: number | null;
+  features: string[];
+}
+
+export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    tier: "free",
+    name: "Free",
+    price_inr: 0,
+    credits_per_month: 500,
+    queries_per_day: null,
+    skills_docs_per_month: null,
+    features: [
+      "500 AI credits/month",
+      "Basic legal chat",
+      "Case management",
+      "Limited research",
+    ],
+  },
+  {
+    tier: "starter",
+    name: "Starter",
+    price_inr: 499,
+    credits_per_month: 2000,
+    queries_per_day: 50,
+    skills_docs_per_month: 10,
+    features: [
+      "50 queries/day",
+      "10 Skills documents/month",
+      "Priority research",
+      "Document analysis",
+      "Email support",
+    ],
+  },
+  {
+    tier: "professional",
+    name: "Professional",
+    price_inr: 1499,
+    credits_per_month: 10000,
+    queries_per_day: null,
+    skills_docs_per_month: 50,
+    features: [
+      "Unlimited queries",
+      "50 Skills documents/month",
+      "Advanced research + analytics",
+      "Bulk document analysis",
+      "Priority support",
+      "API access",
+    ],
+  },
+];
 
 export type CaseStatus =
   | "draft"
@@ -194,4 +262,31 @@ export interface Feedback {
   metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+}
+
+export type SubscriptionStatus = "active" | "cancelled" | "past_due" | "trialing";
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  razorpay_subscription_id: string | null;
+  razorpay_customer_id: string | null;
+  current_period_start: string;
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UsageSummary {
+  credits_used: number;
+  credits_limit: number;
+  queries_today: number;
+  queries_limit: number | null;
+  skills_docs_this_month: number;
+  skills_docs_limit: number | null;
+  equivalent_plan: SubscriptionTier;
+  equivalent_cost_inr: number;
 }

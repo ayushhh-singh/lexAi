@@ -35,7 +35,17 @@ app.use(
   })
 );
 app.use(morgan("dev"));
-app.use(express.json({ limit: "10mb" }));
+app.use(
+  express.json({
+    limit: "10mb",
+    // Preserve raw body for webhook signature verification
+    verify: (req, _res, buf) => {
+      if (req.url?.startsWith("/api/payments/webhook")) {
+        (req as unknown as Record<string, unknown>).rawBody = buf.toString();
+      }
+    },
+  })
+);
 
 // Rate limiting: 100 requests per minute
 const limiter = rateLimit({

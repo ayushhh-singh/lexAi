@@ -340,3 +340,43 @@ export interface AnalyzeDocumentResponse {
 export interface DocumentWithAnalysis extends DocumentListItem {
   analysis?: DocumentAnalysisResult | null;
 }
+
+// ─── Payments / Billing ────────────────────────────────────────────
+
+export interface CreateSubscriptionRequest {
+  tier: "starter" | "professional";
+}
+
+export interface CreateSubscriptionResponse {
+  subscription_id: string;
+  razorpay_subscription_id: string;
+  razorpay_key_id: string;
+}
+
+export interface VerifyPaymentRequest {
+  razorpay_payment_id: string;
+  razorpay_subscription_id: string;
+  razorpay_signature: string;
+}
+
+export interface CancelSubscriptionRequest {
+  cancel_at_period_end?: boolean;
+}
+
+export interface SubmitFeedbackRequest {
+  feature: string;
+  rating: number;
+  comment?: string;
+  response_id?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface BillingHistoryItem {
+  id: string;
+  amount_inr: number;
+  status: string;
+  tier: string;
+  period_start: string;
+  period_end: string;
+  created_at: string;
+}

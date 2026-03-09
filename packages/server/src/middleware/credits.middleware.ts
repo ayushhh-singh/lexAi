@@ -2,8 +2,10 @@ import type { Request, Response, NextFunction } from "express";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { config } from "../lib/config.js";
 import { AppError } from "./error.middleware.js";
+import { trackUsage } from "../services/payment.service.js";
+import type { CreditAction } from "@nyay/shared";
 
-export function requireCredits(cost: number) {
+export function requireCredits(cost: number, actionType?: CreditAction) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user;
@@ -37,6 +39,17 @@ export function requireCredits(cost: number) {
           });
           if (error) {
             console.error(`[credits] Failed to deduct credits for user ${user.id}:`, error);
+          }
+
+          // Always track usage for beta analytics (even when not enforcing)
+          if (actionType) {
+            const feature = req.path;
+            trackUsage(user.id, actionType, feature, {
+              cost,
+              endpoint: `${req.method} ${req.originalUrl}`,
+            }).catch((err) =>
+              console.error("[credits] Failed to track beta usage:", err)
+            );
           }
         }
       });

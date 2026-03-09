@@ -29,6 +29,12 @@ import type {
   AnalyzeDocumentResponse,
   DocumentAnalysisResult,
   GenerateDocumentResponse,
+  Subscription,
+  SubscriptionPlan,
+  UsageSummary,
+  BillingHistoryItem,
+  CreateSubscriptionResponse,
+  SubmitFeedbackRequest,
 } from "@nyay/shared";
 import { supabase } from "./supabase";
 
@@ -73,7 +79,7 @@ axiosInstance.interceptors.response.use(
       supabase.auth.signOut();
       window.location.href = "/login";
     } else if (status === 402) {
-      window.location.href = "/settings?tab=billing&upgrade=true";
+      window.location.href = "/billing?upgrade=true";
     }
     return Promise.reject(error);
   },
@@ -142,7 +148,7 @@ export const api = {
         await supabase.auth.signOut();
         window.location.href = "/login";
       } else if (response.status === 402) {
-        window.location.href = "/settings?tab=billing&upgrade=true";
+        window.location.href = "/billing?upgrade=true";
       }
       return response;
     },
@@ -198,7 +204,7 @@ export const api = {
         await supabase.auth.signOut();
         window.location.href = "/login";
       } else if (response.status === 402) {
-        window.location.href = "/settings?tab=billing&upgrade=true";
+        window.location.href = "/billing?upgrade=true";
       }
       return response;
     },
@@ -338,7 +344,7 @@ export const api = {
         await supabase.auth.signOut();
         window.location.href = "/login";
       } else if (response.status === 402) {
-        window.location.href = "/settings?tab=billing&upgrade=true";
+        window.location.href = "/billing?upgrade=true";
       }
       return response;
     },
@@ -375,6 +381,41 @@ export const api = {
     markRead: (id: string) =>
       axiosInstance
         .patch<ApiResponse<void>>(`/notifications/${validateId(id)}/read`)
+        .then((r) => r.data),
+  },
+
+  payments: {
+    getPlans: () =>
+      axiosInstance
+        .get<ApiResponse<SubscriptionPlan[]>>("/payments/plans")
+        .then((r) => r.data),
+    getSubscription: () =>
+      axiosInstance
+        .get<ApiResponse<Subscription>>("/payments/subscription")
+        .then((r) => r.data),
+    subscribe: (tier: "starter" | "professional") =>
+      axiosInstance
+        .post<ApiResponse<CreateSubscriptionResponse>>("/payments/subscribe", { tier })
+        .then((r) => r.data),
+    verify: (data: { razorpay_payment_id: string; razorpay_subscription_id: string; razorpay_signature: string }) =>
+      axiosInstance
+        .post<ApiResponse<{ verified: boolean }>>("/payments/verify", data)
+        .then((r) => r.data),
+    cancel: (cancelAtPeriodEnd?: boolean) =>
+      axiosInstance
+        .post<ApiResponse<Subscription>>("/payments/cancel", { cancel_at_period_end: cancelAtPeriodEnd ?? true })
+        .then((r) => r.data),
+    getUsage: () =>
+      axiosInstance
+        .get<ApiResponse<UsageSummary>>("/payments/usage")
+        .then((r) => r.data),
+    getBillingHistory: () =>
+      axiosInstance
+        .get<ApiResponse<BillingHistoryItem[]>>("/payments/billing-history")
+        .then((r) => r.data),
+    submitFeedback: (data: SubmitFeedbackRequest) =>
+      axiosInstance
+        .post<ApiResponse<void>>("/payments/feedback", data)
         .then((r) => r.data),
   },
 };

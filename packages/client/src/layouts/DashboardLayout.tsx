@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "../components/dashboard/Sidebar";
 import { Header } from "../components/dashboard/Header";
+import { BetaBanner } from "../components/billing/BetaBanner";
 
 export function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -16,6 +17,7 @@ export function DashboardLayout() {
         onMobileClose={() => setMobileOpen(false)}
       />
       <div className="flex flex-1 flex-col overflow-hidden">
+        <BetaBanner />
         <Header onMobileMenuOpen={() => setMobileOpen(true)} />
         <main className="flex-1 overflow-auto">
           <Outlet />

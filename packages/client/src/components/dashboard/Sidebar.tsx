@@ -6,6 +6,7 @@ import {
   FileEdit,
   Briefcase,
   FolderOpen,
+  CreditCard,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -23,6 +24,7 @@ const NAV_ITEMS: { to: string; icon: LucideIcon; labelKey: TranslationKey }[] = 
   { to: "/drafts", icon: FileEdit, labelKey: "nav.drafts" },
   { to: "/cases", icon: Briefcase, labelKey: "nav.cases" },
   { to: "/documents", icon: FolderOpen, labelKey: "nav.documents" },
+  { to: "/billing", icon: CreditCard, labelKey: "nav.billing" },
   { to: "/settings", icon: Settings, labelKey: "nav.settings" },
 ];
 

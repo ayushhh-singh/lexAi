@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { CheckCircle, AlertTriangle, X } from "lucide-react";
 import type { Citation } from "@nyay/shared";
+import { FeedbackWidget } from "../billing/FeedbackWidget";
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
   citations?: Citation[];
   isStreaming?: boolean;
+  messageId?: string;
 }
 
 function CitationPopover({ citation, onClose }: { citation: Citation; onClose: () => void }) {
@@ -69,7 +71,7 @@ function CitationBadge({ citation }: { citation: Citation }) {
   );
 }
 
-export function MessageBubble({ role, content, citations, isStreaming }: MessageBubbleProps) {
+export function MessageBubble({ role, content, citations, isStreaming, messageId }: MessageBubbleProps) {
   const isUser = role === "user";
 
   return (
@@ -100,6 +102,13 @@ export function MessageBubble({ role, content, citations, isStreaming }: Message
             {citations.map((c, i) => (
               <CitationBadge key={i} citation={c} />
             ))}
+          </div>
+        )}
+
+        {/* Feedback — assistant messages only, after streaming completes */}
+        {!isUser && !isStreaming && content.length > 0 && (
+          <div className="mt-2 border-t border-gray-200 pt-2">
+            <FeedbackWidget feature="chat" responseId={messageId} />
           </div>
         )}
       </div>

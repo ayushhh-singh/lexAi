@@ -16,6 +16,7 @@ const ROUTE_KEYS: Record<string, TranslationKey> = {
   drafts: "nav.drafts",
   cases: "nav.cases",
   documents: "nav.documents",
+  billing: "nav.billing",
   settings: "nav.settings",
 };
 

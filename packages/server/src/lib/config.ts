@@ -13,6 +13,15 @@ const envSchema = z.object({
     .string()
     .default("false")
     .transform((v) => v === "true"),
+  BETA_MODE: z
+    .string()
+    .default("true")
+    .transform((v) => v === "true"),
+  SHOW_PRICING: z
+    .string()
+    .default("false")
+    .transform((v) => v === "true"),
+  RAZORPAY_WEBHOOK_SECRET: z.string().default(""),
 });
 
 const parsed = envSchema.safeParse(process.env);
