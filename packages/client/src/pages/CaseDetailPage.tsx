@@ -183,7 +183,7 @@ export function CaseDetailPage() {
 
 // ─── Tab 1: Overview ────────────────────────────────────────────
 
-function OverviewTab({ caseMatter, onUpdated }: { caseMatter: CaseWithStats; onUpdated: () => void }) {
+function OverviewTab({ caseMatter }: { caseMatter: CaseWithStats; onUpdated: () => void }) {
   const [generatingReport, setGeneratingReport] = useState(false);
   const [reportProgress, setReportProgress] = useState("");
   const [reportError, setReportError] = useState<string | null>(null);
@@ -234,8 +234,6 @@ function OverviewTab({ caseMatter, onUpdated }: { caseMatter: CaseWithStats; onU
       setGeneratingReport(false);
     }
   };
-
-  const now = new Date();
 
   return (
     <div className="space-y-6">

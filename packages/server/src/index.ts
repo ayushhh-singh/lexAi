@@ -17,6 +17,11 @@ import limitationRoutes from "./routes/limitation.routes.js";
 
 const app = express();
 
+// Trust Railway's proxy so rate-limiter and IP headers work correctly
+if (config.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 // Middleware
 app.use(helmet());
 app.use(
@@ -34,7 +39,7 @@ app.use(
     },
   })
 );
-app.use(morgan("dev"));
+app.use(morgan(config.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(
   express.json({
     limit: "10mb",
@@ -47,6 +52,11 @@ app.use(
   })
 );
 
+// Health check — before rate limiter so Railway healthchecks aren't throttled
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 // Rate limiting: 100 requests per minute
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -55,11 +65,6 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use("/api/", limiter);
-
-// Health check
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
-});
 
 // Routes
 app.use("/api/auth", authRoutes);

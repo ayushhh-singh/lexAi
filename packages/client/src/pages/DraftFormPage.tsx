@@ -379,7 +379,6 @@ export function DraftFormPage() {
 }
 
 function ReviewStep({
-  template,
   fieldSteps,
   values,
   onEdit,

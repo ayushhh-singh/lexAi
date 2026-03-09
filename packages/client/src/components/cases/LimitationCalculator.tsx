@@ -30,20 +30,7 @@ interface LimitationCalculatorProps {
   onAddDeadline?: (data: { title: string; deadline_date: string; deadline_type: string; description: string }) => void;
 }
 
-const CATEGORY_LABELS: Record<LimitationCategory, string> = {
-  suits_relating_to_contracts: "Contracts",
-  suits_relating_to_declarations: "Declarations",
-  suits_relating_to_decrees_and_instruments: "Decrees & Instruments",
-  suits_relating_to_movable_property: "Movable Property",
-  suits_relating_to_immovable_property: "Immovable Property",
-  suits_relating_to_torts: "Torts",
-  appeals: "Appeals",
-  applications: "Applications",
-  criminal: "Criminal",
-  special_statutes: "Special Statutes",
-};
-
-export function LimitationCalculator({ caseId, caseType, caseDescription, onAddDeadline }: LimitationCalculatorProps) {
+export function LimitationCalculator({ caseId: _caseId, caseType, caseDescription, onAddDeadline }: LimitationCalculatorProps) {
   // State
   const [periods, setPeriods] = useState<LimitationPeriod[]>([]);
   const [categories, setCategories] = useState<Array<{ id: LimitationCategory; label: string }>>([]);

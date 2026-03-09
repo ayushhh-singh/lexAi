@@ -20,7 +20,6 @@ import { AnalysisResult } from "../components/documents/AnalysisResult";
 import { useTranslation } from "../lib/i18n";
 import type {
   LegalDocument,
-  DocumentAnalysisResult,
   AnalyzeDocumentResponse,
 } from "@nyay/shared";
 

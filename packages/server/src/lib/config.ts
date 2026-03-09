@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const envSchema = z.object({
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.coerce.number().default(3001),
   CLIENT_URL: z.string().default("http://localhost:5173"),
   SUPABASE_URL: z.string().min(1, "SUPABASE_URL is required"),
@@ -22,6 +23,9 @@ const envSchema = z.object({
     .default("false")
     .transform((v) => v === "true"),
   RAZORPAY_WEBHOOK_SECRET: z.string().default(""),
+  // Skill IDs — env-specific (dev vs prod have different IDs)
+  SKILL_ID_INDIAN_LEGAL_DRAFTER: z.string().default(""),
+  SKILL_ID_COURT_FORMATTER: z.string().default(""),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -29,6 +33,15 @@ const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
   console.error("Invalid environment variables:");
   console.error(parsed.error.flatten().fieldErrors);
+  process.exit(1);
+}
+
+// Fail fast if CLIENT_URL is the dev default in production
+if (
+  parsed.data.NODE_ENV === "production" &&
+  parsed.data.CLIENT_URL === "http://localhost:5173"
+) {
+  console.error("CLIENT_URL must be set to your Vercel domain in production");
   process.exit(1);
 }
 
