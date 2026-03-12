@@ -1,0 +1,93 @@
+Negotiable Instruments Act, 1881
+================================
+
+CHAPTER I — PRELIMINARY
+
+Section 1. Short title, extent and commencement  
+This Act may be called the Negotiable Instruments Act, 1881. It extends to the whole of India except the State of Jammu and Kashmir. It shall come into force on the first day of March, 1882.
+
+Section 2. Interpretation clause  
+In this Act, unless there is anything repugnant in the subject or context,  
+(a) "promissory note" means a promissory note as defined in section 4;  
+(b) "bill of exchange" means a bill of exchange as defined in section 5;  
+(c) "cheque" means a cheque as defined in section 6;  
+(d) "holder" means the payee or endorsee of a bill or note who is in possession thereof, or the bearer thereof;  
+(e) "holder in due course" means any person who for consideration becomes the holder of a negotiable instrument, if the instrument is complete and regular on the face of it;  
+(f) "value" means valuable consideration;  
+(g) "banker" means a person who carries on the business of banking in India.
+
+CHAPTER II — OF PROMISSORY NOTES
+
+Section 4. Promissory note  
+A "promissory note" is an instrument in writing (not being a banknote or currency note) containing an unconditional undertaking, signed by the maker, to pay a certain sum of money only to, or to the order of, a certain person, or to the bearer of the instrument.
+
+CHAPTER III — OF BILLS OF EXCHANGE
+
+Section 5. Bill of exchange  
+A "bill of exchange" is an instrument in writing containing an unconditional order, signed by the maker, directing a certain person to pay a certain sum of money only to, or to the order of, a certain person, or to the bearer of the instrument.
+
+CHAPTER IV — OF CHEQUES
+
+Section 6. Cheque  
+A "cheque" is a bill of exchange drawn on a specified banker and not expressed to be payable otherwise than on demand.
+
+CHAPTER V — OF NEGOTIATION
+
+Section 8. Negotiation  
+A negotiable instrument is said to be negotiated when it is transferred from one person to another in such a manner as to constitute the transferee the holder thereof.
+
+Section 9. Holder  
+The holder of a negotiable instrument is the person entitled in his own name to the possession thereof and to receive or recover the amount due thereon from the parties thereto.
+
+CHAPTER VI — OF PRESENTMENT
+
+Section 61. Presentment for payment  
+The holder of a negotiable instrument must present it for payment at the proper time and place.
+
+CHAPTER VII — OF DISCHARGE FROM LIABILITY
+
+Section 134. Discharge of parties  
+A party to a negotiable instrument is discharged from liability thereon—  
+(a) by payment in due course;  
+(b) by cancellation;  
+(c) by release;  
+(d) by a valid agreement.
+
+CHAPTER VIII — OF PENALTIES IN CASE OF DISHONOUR OF CHEQUE
+
+Section 138. Dishonour of cheque for insufficiency of funds  
+Where any cheque drawn by a person on an account maintained by him with a banker for payment of any amount of money to another person from that account is returned by the bank unpaid, either because of the amount of money standing to the credit of that account is insufficient to honor the cheque or that it exceeds the amount arranged to be paid by the drawer, such person shall be deemed to have committed an offence.
+
+Section 139. Presumption in favour of holder  
+It shall be presumed, unless the contrary is proved, that the holder of a cheque received the cheque of the nature referred to in section 138 for the discharge, in whole or in part, of any debt or other liability.
+
+CHAPTER IX — OF NOTING AND PROTEST
+
+Section 99. Noting  
+Noting is the act of recording the fact of dishonour of a negotiable instrument.
+
+CHAPTER X — OF THE EFFECT OF INSTRUMENTS
+
+Section 118. Presumptions as to negotiable instruments  
+Until the contrary is proved, the following presumptions shall be made:  
+(a) that every negotiable instrument was made or drawn for consideration;  
+(b) that every such instrument, when it has been accepted, was accepted for consideration;  
+(c) that every such instrument was made or drawn on the date it bears.
+
+CHAPTER XI — OF THE INDEMNITY
+
+Section 145. Indemnity  
+The maker of a negotiable instrument is bound to indemnify the holder against any loss incurred by reason of the instrument being dishonoured.
+
+CHAPTER XII — OF THE CONTRACTS
+
+Section 164. Contracts relating to negotiable instruments  
+All contracts relating to negotiable instruments shall be governed by the provisions of this Act.
+
+CHAPTER XIII — OF MISCELLANEOUS
+
+Section 172. Power to make rules  
+The Central Government may make rules for carrying out the purposes of this Act.
+
+Section 173. Repeal of certain enactments  
+The enactments specified in the Schedule are hereby repealed.

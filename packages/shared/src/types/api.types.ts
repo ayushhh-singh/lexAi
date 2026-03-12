@@ -1,4 +1,4 @@
-import type { CaseMatter } from "./database.types";
+import type { CaseMatter } from "./database.types.ts";
 
 export interface ApiResponse<T = unknown> {
   success: boolean;

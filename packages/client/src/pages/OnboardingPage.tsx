@@ -52,15 +52,26 @@ export function OnboardingPage() {
     setSaving(true);
     setError("");
     try {
-      const { data } = await api.auth.updateProfile({
+      const response = await api.auth.updateProfile({
         practice_areas: practiceAreas.length > 0 ? practiceAreas : undefined,
         preferred_language: language,
         default_court: defaultCourt || undefined,
         onboarding_completed: true,
       });
-      if (data) setProfile(data);
+      console.log("[onboarding] updateProfile response:", JSON.stringify(response));
+      const updatedProfile = response.data;
+      if (updatedProfile) {
+        console.log("[onboarding] setting profile, onboarding_completed:", updatedProfile.onboarding_completed);
+        setProfile(updatedProfile);
+      } else {
+        console.warn("[onboarding] no profile in response, response was:", response);
+      }
+      // Small delay to let Zustand update propagate before navigation
+      await new Promise((r) => setTimeout(r, 50));
+      console.log("[onboarding] navigating to /");
       navigate("/", { replace: true });
     } catch (e: unknown) {
+      console.error("[onboarding] error:", e);
       setError(e instanceof Error ? e.message : "Failed to save. Please try again.");
     } finally {
       setSaving(false);

@@ -48,6 +48,8 @@ router.patch("/profile", requireAuth, async (req, res, next) => {
       throw new AppError(400, "BAD_REQUEST", "onboarding_completed must be a boolean");
     }
 
+    console.log("[auth] PATCH /profile updates:", JSON.stringify(updates), "userId:", user.id);
+
     const { data, error } = await supabaseAdmin
       .from("profiles")
       .update(updates)
@@ -56,9 +58,11 @@ router.patch("/profile", requireAuth, async (req, res, next) => {
       .single();
 
     if (error) {
+      console.error("[auth] profile update failed:", error);
       throw new AppError(500, "UPDATE_FAILED", "Failed to update profile");
     }
 
+    console.log("[auth] profile updated, onboarding_completed:", (data as Record<string, unknown>)?.onboarding_completed);
     res.json({ success: true, data });
   } catch (err) {
     next(err);

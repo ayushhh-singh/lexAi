@@ -57,11 +57,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       }
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log("[auth] onAuthStateChange:", event, "hasSession:", !!session);
         if (session) {
           set({ user: session.user, session });
           if (event === "SIGNED_IN" || !get().profile) {
             try {
               const { data: profile } = await api.auth.getProfile({ skipRedirect: true });
+              console.log("[auth] re-fetched profile, onboarding_completed:", profile?.onboarding_completed);
               set({ profile: profile ?? null });
             } catch { /* profile not created yet */ }
           }

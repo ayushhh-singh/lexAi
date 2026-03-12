@@ -1,0 +1,108 @@
+Companies Act, 2013
+===================
+
+CHAPTER I — PRELIMINARY
+
+Section 1. Short title, extent, commencement, and application
+(1) This Act may be called the Companies Act, 2013.
+(2) It extends to the whole of India.
+(3) It shall come into force on such date as the Central Government may, by notification in the Official Gazette, appoint.
+(4) It shall apply to—
+   (a) every company incorporated under this Act or under any previous company law;
+   (b) every company registered under this Act or under any previous company law;
+   (c) any other company or body corporate incorporated by or under any law for the time being in force.
+
+CHAPTER II — INCORPORATION OF COMPANY AND MATTERS INCIDENTAL THERETO
+
+Section 3. Formation of company
+(1) A company may be formed for any lawful purpose by—
+   (a) seven or more persons, in the case of a public company;
+   (b) two or more persons, in the case of a private company;
+   (c) one person, in the case of a one person company.
+
+Section 4. Memorandum
+(1) The memorandum of a company shall state—
+   (a) the name of the company;
+   (b) the state in which the registered office of the company is to be situated;
+   (c) the objects for which the company is proposed to be incorporated.
+
+Section 7. Incorporation of company
+(1) The Registrar shall, on receiving the documents referred to in section 4 and the prescribed fees, register the company and issue a certificate of incorporation.
+
+CHAPTER III — PROSPECTUS AND ALLOTMENT OF SECURITIES
+
+Section 26. Issue of prospectus
+(1) A prospectus shall not be issued unless it is signed by every director or proposed director of the company.
+
+Section 42. Private placement
+(1) A company may make a private placement of securities to not more than 200 persons in a financial year.
+
+CHAPTER IV — SHARE CAPITAL AND DEBENTURES
+
+Section 43. Kinds of share capital
+(1) The share capital of a company shall be of two kinds, namely—
+   (a) equity share capital;
+   (b) preference share capital.
+
+Section 62. Further issue of share capital
+(1) A company shall, if it proposes to increase its subscribed capital by the issue of further shares, offer those shares to—
+   (a) the existing equity shareholders;
+   (b) employees under a scheme of employees' stock option.
+
+CHAPTER V — MANAGEMENT AND ADMINISTRATION
+
+Section 73. Prohibition on acceptance of deposits from public
+(1) No company shall invite, accept, or renew any deposit from the public.
+
+Section 92. Annual return
+(1) Every company shall file with the Registrar an annual return within sixty days from the date of the annual general meeting.
+
+CHAPTER VI — ACCOUNTS OF COMPANIES
+
+Section 128. Books of account to be maintained
+(1) Every company shall prepare and keep at its registered office books of account.
+
+Section 134. Financial statement
+(1) The financial statement shall give a true and fair view of the state of affairs of the company.
+
+CHAPTER VII — AUDIT AND AUDITORS
+
+Section 139. Appointment of auditors
+(1) A company shall appoint an individual as an auditor or a firm as auditors at the first annual general meeting.
+
+Section 143. Powers and duties of auditors
+(1) The auditor shall have the right of access at all times to the books of account and other relevant records.
+
+CHAPTER IX — COMPROMISE, ARRANGEMENT AND AMALGAMATION
+
+Section 230. Power to compromise or make arrangements with creditors
+(1) A company may, if it is unable to pay its debts, compromise with its creditors.
+
+CHAPTER XI — INSPECTION, INQUIRY AND INVESTIGATION
+
+Section 206. Power of Registrar to call for information
+(1) The Registrar may call for information or explanation from any company.
+
+CHAPTER XII — Winding Up
+
+Section 270. Modes of winding up
+(1) A company may be wound up in any of the following ways—
+   (a) by the Tribunal;
+   (b) voluntarily.
+
+CHAPTER XIII — TRIBUNAL
+
+Section 420. Appeal to Tribunal
+(1) Any person aggrieved by an order of the Registrar may appeal to the Tribunal.
+
+CHAPTER XIV — MISCELLANEOUS
+
+Section 447. Punishment for false statements
+(1) If any person makes a statement—
+   (a) which is false in any material particular; or
+   (b) which he knows to be false, he shall be punishable.
+
+Section 448. Punishment for false statements
+(1) If a company makes a false statement in any return, report, certificate, or other document, it shall be punishable.
+
+This structured format provides a concise overview of key sections from the Companies Act, 2013 that are frequently referenced by legal professionals in India.

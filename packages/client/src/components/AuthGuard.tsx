@@ -33,6 +33,7 @@ export function AuthGuard() {
   }
 
   if (session && (!profile || !profile.onboarding_completed)) {
+    console.log("[AuthGuard] redirecting to /onboarding — profile:", profile ? { id: profile.id, onboarding_completed: profile.onboarding_completed } : null);
     return <Navigate to="/onboarding" replace />;
   }
 

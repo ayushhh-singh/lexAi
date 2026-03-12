@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -16,10 +16,12 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useAuthStore } from "../stores/auth.store";
+import { api } from "../lib/api-client";
 import { DashboardSkeleton } from "../components/dashboard/Skeletons";
 import { useTranslation } from "../lib/i18n";
 import type { TranslationKey } from "../lib/i18n";
 import type { LucideIcon } from "lucide-react";
+import type { Conversation, CaseDeadline } from "@nyay/shared";
 
 interface ChecklistStep {
   id: string;
@@ -52,22 +54,15 @@ const QUICK_ACTIONS: QuickAction[] = [
   { to: "/cases", icon: Briefcase, labelKey: "dashboard.action.cases", descKey: "dashboard.action.cases.desc", color: "bg-warning/10 text-warning-dark", iconBg: "bg-warning/10" },
 ];
 
-// Mock data — will be replaced with API calls
-const MOCK_CONVERSATIONS = [
-  { id: "1", title: "IPC Section 420 analysis", practice_area: "Criminal", updated_at: "2 hours ago" },
-  { id: "2", title: "Property dispute in Dwarka", practice_area: "Civil", updated_at: "5 hours ago" },
-  { id: "3", title: "GST compliance review", practice_area: "Tax", updated_at: "1 day ago" },
-  { id: "4", title: "Trademark infringement notice", practice_area: "IP", updated_at: "2 days ago" },
-  { id: "5", title: "Bail application drafting", practice_area: "Criminal", updated_at: "3 days ago" },
-];
-
-const MOCK_DEADLINES = [
-  { id: "1", title: "Filing reply — Sharma vs State", date: "Mar 10, 2026", type: "filing" as const, urgent: true },
-  { id: "2", title: "Hearing — Patel Property Dispute", date: "Mar 14, 2026", type: "hearing" as const, urgent: false },
-  { id: "3", title: "Limitation expiry — Singh Contract", date: "Mar 18, 2026", type: "limitation" as const, urgent: false },
-  { id: "4", title: "Compliance — GST Return Q4", date: "Mar 25, 2026", type: "compliance" as const, urgent: false },
-  { id: "5", title: "Hearing — IP Trademark case", date: "Apr 2, 2026", type: "hearing" as const, urgent: false },
-];
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
 const DEADLINE_ICON_MAP = {
   filing: FileText,
@@ -82,7 +77,16 @@ export function DashboardPage() {
   const { t } = useTranslation();
   const [steps, setSteps] = useState(INITIAL_STEPS);
   const [checklistDismissed, setChecklistDismissed] = useState(false);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [deadlines] = useState<CaseDeadline[]>([]);
+
+  useEffect(() => {
+    api.chat.listConversations()
+      .then((r) => setConversations((r.data ?? []).slice(0, 5)))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   if (loading) return <DashboardSkeleton />;
 
@@ -210,7 +214,11 @@ export function DashboardPage() {
             </Link>
           </div>
           <div className="space-y-1">
-            {MOCK_CONVERSATIONS.map((conv) => (
+            {conversations.length === 0 ? (
+              <p className="px-3 py-6 text-center font-heading text-sm text-gray-400">
+                No conversations yet. <Link to="/chat" className="text-accent hover:underline">Start one</Link>
+              </p>
+            ) : conversations.map((conv) => (
               <Link
                 key={conv.id}
                 to={`/chat/${conv.id}`}
@@ -218,10 +226,10 @@ export function DashboardPage() {
               >
                 <div>
                   <p className="font-heading text-sm font-medium text-gray-900">{conv.title}</p>
-                  <p className="font-heading text-xs text-gray-400">{conv.practice_area}</p>
+                  <p className="font-heading text-xs text-gray-400">{conv.practice_area ?? ""}</p>
                 </div>
                 <span className="shrink-0 font-heading text-xs text-gray-400">
-                  {conv.updated_at}
+                  {timeAgo(conv.updated_at)}
                 </span>
               </Link>
             ))}
@@ -242,8 +250,15 @@ export function DashboardPage() {
             </Link>
           </div>
           <div className="space-y-1">
-            {MOCK_DEADLINES.map((dl) => {
-              const DlIcon = DEADLINE_ICON_MAP[dl.type];
+            {deadlines.length === 0 ? (
+              <p className="px-3 py-6 text-center font-heading text-sm text-gray-400">
+                No upcoming deadlines. <Link to="/cases" className="text-accent hover:underline">Add a case</Link>
+              </p>
+            ) : deadlines.map((dl) => {
+              const dlType = (dl.deadline_type ?? "other") as keyof typeof DEADLINE_ICON_MAP;
+              const DlIcon = DEADLINE_ICON_MAP[dlType] ?? DEADLINE_ICON_MAP.other;
+              const daysUntil = Math.ceil((new Date(dl.deadline_date).getTime() - Date.now()) / 86400000);
+              const urgent = daysUntil <= 3;
               return (
                 <div
                   key={dl.id}
@@ -251,21 +266,21 @@ export function DashboardPage() {
                 >
                   <div
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                      dl.urgent ? "bg-error/10" : "bg-gray-100"
+                      urgent ? "bg-error/10" : "bg-gray-100"
                     }`}
                   >
                     <DlIcon
-                      className={`h-4 w-4 ${dl.urgent ? "text-error" : "text-gray-500"}`}
+                      className={`h-4 w-4 ${urgent ? "text-error" : "text-gray-500"}`}
                     />
                   </div>
                   <div className="flex-1">
                     <p className="font-heading text-sm font-medium text-gray-900">{dl.title}</p>
                     <p
                       className={`font-heading text-xs ${
-                        dl.urgent ? "font-medium text-error" : "text-gray-400"
+                        urgent ? "font-medium text-error" : "text-gray-400"
                       }`}
                     >
-                      {dl.date}
+                      {new Date(dl.deadline_date).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
                   </div>
                 </div>

@@ -1,0 +1,97 @@
+Limitation Act, 1963
+====================
+
+**CHAPTER I — PRELIMINARY**
+
+Section 1. Short title, extent and commencement  
+(1) This Act may be called the Limitation Act, 1963.  
+(2) It extends to the whole of India except the State of Jammu and Kashmir.  
+(3) It shall come into force on the 1st day of January, 1964.
+
+**CHAPTER II — LIMITATION OF SUITS, APPEALS AND APPLICATIONS**
+
+Section 2. Definitions  
+In this Act, unless the context otherwise requires—  
+(a) "appeal" means an appeal under any law for the time being in force;  
+(b) "applicant" means a person who makes an application;  
+(c) "defendant" means a person against whom a suit is instituted;  
+(d) "suit" means a suit of a civil nature;  
+(e) "period of limitation" means the period of limitation prescribed for any suit, appeal or application by the Schedule.
+
+Section 3. Bar of limitation  
+(1) Subject to the provisions contained in this Act, every suit instituted, appeal preferred, and application made after the period of limitation prescribed therefor by the Schedule shall be dismissed, although limitation has not been set up as a defence.  
+(2) The provisions of this section shall apply to suits, appeals and applications.
+
+Section 4. Expiry of period of limitation  
+Where the period of limitation prescribed for any suit, appeal or application expires on a day when the court is closed, the suit, appeal or application may be instituted, preferred or made on the day when the court reopens.
+
+Section 5. Extension of period of limitation in certain cases  
+Any appeal or any application, other than an application under any of the provisions of Order XXI of the Code of Civil Procedure, 1908, may be admitted after the prescribed period, if the appellant or applicant satisfies the court that he had sufficient cause for not preferring the appeal or making the application in time.
+
+Section 6. Suits by or against minors and persons of unsound mind  
+(1) Where a person entitled to institute a suit is, at the time when the right to sue accrues, a minor or of unsound mind, he may institute the suit within the same period after he ceases to be a minor or to be of unsound mind as would otherwise have been allowed.  
+(2) The provisions of this section shall apply to suits by or against persons of unsound mind.
+
+Section 7. Legal disability  
+Where a person is under a legal disability, he may institute a suit within the same period after the disability has ceased as would otherwise have been allowed.
+
+Section 8. Special provisions relating to suits for the recovery of possession of immovable property  
+(1) Where a person is dispossessed of immovable property without his consent, otherwise than in due course of law, he may, by suit, recover possession thereof, notwithstanding any time limit prescribed by this Act.  
+(2) The suit shall be instituted within six months from the date of dispossession.
+
+**CHAPTER III — COMPUTATION OF PERIOD OF LIMITATION**
+
+Section 9. Time to be excluded in certain cases  
+In computing the period of limitation for any suit, appeal or application, the time during which the plaintiff or applicant was in a state of legal disability shall be excluded.
+
+Section 10. Exclusion of time in certain cases  
+In computing the period of limitation for any suit, appeal or application, the time during which any proceeding is pending in a court shall be excluded.
+
+**CHAPTER IV — SCHEDULE**
+
+Section 11. Schedule  
+The periods of limitation for various suits, appeals, and applications are specified in the Schedule to this Act.
+
+**CHAPTER V — MISCELLANEOUS**
+
+Section 12. Exclusion of time in certain cases of appeal  
+In computing the period of limitation for an appeal, the time taken in obtaining a copy of the decree or order appealed from shall be excluded.
+
+Section 13. Extension of time in certain cases  
+Where an appeal is made from a decree or order, the time taken in obtaining a copy of the decree or order shall be excluded.
+
+Section 14. Exclusion of time of proceeding bona fide in court  
+(1) In computing the period of limitation for any suit, the time during which the plaintiff has been prosecuting with due diligence another civil proceeding, whether in a court of first instance or in a court of appeal, shall be excluded.  
+(2) The provisions of this section shall apply only to proceedings that are instituted in good faith.
+
+Section 15. Effect of fraud or mistake  
+(1) Where any suit or application is based on the fraud of the defendant or on a mistake, the period of limitation shall not begin to run until the plaintiff has discovered the fraud or mistake.  
+(2) The provisions of this section shall apply only to cases where the fraud or mistake is of a nature that it could not have been discovered by the plaintiff by the exercise of due diligence.
+
+Section 16. Effect of acknowledgment in writing  
+(1) Where, before the expiration of the period of limitation, an acknowledgment of liability is made in writing, the period of limitation shall be deemed to have been extended.  
+(2) The acknowledgment must be signed by the party against whom the claim is made.
+
+Section 17. Effect of payment on account of debt  
+Where a payment on account of a debt is made before the expiration of the period of limitation, the period of limitation shall be deemed to have been extended.
+
+Section 18. Effect of part payment  
+Where a part payment is made on account of a debt, the period of limitation shall be deemed to have been extended.
+
+Section 19. Limitation in case of continuing breaches  
+In the case of a continuing breach of contract or a continuing wrong, a fresh period of limitation shall begin to run at every moment of the breach or wrong.
+
+Section 20. Limitation in case of continuing wrongs  
+In the case of a continuing wrong, the period of limitation shall begin to run from the date of the last act or omission.
+
+Section 21. Limitation in case of suits for recovery of possession of immovable property  
+In the case of a suit for recovery of possession of immovable property, the period of limitation shall be twelve years from the date of dispossession.
+
+Section 22. Limitation for suits for specific performance  
+The period of limitation for a suit for specific performance of a contract shall be three years from the date fixed for the performance.
+
+**CHAPTER VI — REPEAL AND SAVINGS**
+
+Section 23. Repeal and savings  
+(1) The Limitation Act, 1908, is hereby repealed.  
+(2) Notwithstanding the repeal of the Limitation Act, 1908, any suit, appeal or application instituted, preferred or made before the commencement of this Act shall be governed by the provisions of the Limitation Act, 1908.

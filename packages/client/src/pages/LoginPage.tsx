@@ -112,7 +112,14 @@ export function LoginPage() {
                 try {
                   await login(data.email, data.password);
                 } catch (e: unknown) {
-                  setError(e instanceof Error ? e.message : "Invalid credentials");
+                  const msg = e instanceof Error ? e.message : "Invalid credentials";
+                  // Supabase returns generic "Invalid login credentials" for both wrong password
+                  // AND users who signed up via OTP (no password set)
+                  if (msg.toLowerCase().includes("invalid login credentials")) {
+                    setError("Invalid credentials. If you signed up with OTP, use \"Sign in with Email OTP\" instead — password login only works if you registered via the Sign Up page.");
+                  } else {
+                    setError(msg);
+                  }
                 }
               }}
               onSwitchToOtp={() => { setError(""); setMode("otp-email"); }}

@@ -57,9 +57,9 @@ CREATE TABLE IF NOT EXISTS beta_usage_analytics (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_beta_usage_user_id ON beta_usage_analytics(user_id);
-CREATE INDEX idx_beta_usage_created_at ON beta_usage_analytics(created_at);
-CREATE INDEX idx_beta_usage_action_type ON beta_usage_analytics(action_type);
+CREATE INDEX IF NOT EXISTS idx_beta_usage_user_id ON beta_usage_analytics(user_id);
+CREATE INDEX IF NOT EXISTS idx_beta_usage_created_at ON beta_usage_analytics(created_at);
+CREATE INDEX IF NOT EXISTS idx_beta_usage_action_type ON beta_usage_analytics(action_type);
 
 ALTER TABLE beta_usage_analytics ENABLE ROW LEVEL SECURITY;
 
@@ -81,8 +81,8 @@ CREATE TABLE IF NOT EXISTS feedback (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_feedback_user_id ON feedback(user_id);
-CREATE INDEX idx_feedback_feature ON feedback(feature);
+CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_feature ON feedback(feature);
 
 ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
 

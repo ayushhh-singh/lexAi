@@ -1,0 +1,83 @@
+Information Technology Act, 2000
+================================
+
+CHAPTER I — PRELIMINARY
+
+Section 1. Short title, extent, and commencement
+(1) This Act may be called the Information Technology Act, 2000.
+(2) It extends to the whole of India.
+(3) It shall come into force on such date as the Central Government may, by notification in the Official Gazette, appoint.
+
+CHAPTER II — DIGITAL SIGNATURES
+
+Section 3. Authentication of electronic records
+(1) Where any law provides that information or any matter shall be authenticated by affixing the signature, then, such requirement shall be deemed to be satisfied by affixing the digital signature.
+
+Section 4. Digital signature
+(1) For the purposes of this Act, a digital signature means the authentication of any electronic record by a subscriber by means of an electronic method or procedure in accordance with the provisions of this Act.
+
+CHAPTER III — ELECTRONIC GOVERNANCE
+
+Section 6. Legal recognition of electronic records
+(1) Where any law provides that information or any matter shall be in writing or in the typewritten or printed form, then, notwithstanding anything contained in that law, such requirement shall be deemed to be satisfied if such information or matter is rendered or made available in an electronic form.
+
+Section 7. Legal recognition of digital signatures
+(1) Where any law provides that information or any matter shall be authenticated by affixing the signature, then, such requirement shall be deemed to be satisfied by affixing the digital signature.
+
+CHAPTER IV — REGULATORY FRAMEWORK
+
+Section 10. Controller to be appointed
+(1) The Central Government shall appoint a Controller of Certifying Authorities to exercise the powers conferred on him by or under this Act.
+
+Section 11. Functions of the Controller
+(1) The Controller shall perform the functions assigned to him under this Act and shall have the power to make regulations for the purposes of this Act.
+
+CHAPTER V — CERTIFYING AUTHORITIES
+
+Section 17. Grant of license
+(1) The Controller may grant a license to any person to act as a certifying authority if he is satisfied that such person is competent to act as a certifying authority.
+
+Section 18. Suspension and revocation of license
+(1) The Controller may suspend or revoke a license granted to a certifying authority if he is satisfied that the certifying authority has violated any provisions of this Act or the rules or regulations made thereunder.
+
+CHAPTER VI — OFFENCES
+
+Section 66. Computer-related offences
+(1) Any person who, by means of a computer resource or a communication device, commits any of the following acts, namely: 
+(a) dishonestly or fraudulently accesses or secures access to a computer resource;
+(b) downloads, copies, or extracts any data, computer database, or information from such computer resource;
+(c) introduces or causes to be introduced any computer contaminant or computer virus into any computer resource;
+(d) damages or causes to be damaged any computer resource or computer system;
+(e) disrupts or causes disruption of any computer resource or computer system;
+(f) denies or causes the denial of access to any person authorized to access any computer resource;
+(g) provides any assistance to any person to facilitate access to a computer resource in contravention of the provisions of this Act;
+(h) commits any other offence relating to a computer resource,
+shall be punished with imprisonment for a term which may extend to three years, or with fine which may extend to five lakh rupees, or with both.
+
+CHAPTER VII — MISCELLANEOUS
+
+Section 79. Exemption from liability of intermediary
+(1) An intermediary shall not be liable for any third-party information, data, or communication link made available or hosted by him on his computer resource, if the intermediary proves that the offence or contravention was committed without his knowledge or that he had exercised due diligence to prevent the commission of such offence.
+
+Section 84. Power to make rules
+(1) The Central Government may, by notification in the Official Gazette, make rules for carrying out the provisions of this Act.
+
+Section 85. Offences by companies
+(1) If the person committing an offence under this Act is a company, every person who, at the time the offence was committed, was in charge of, and was responsible to the company for the conduct of the business of the company, shall be deemed to be guilty of the offence.
+
+Section 87. Power to make regulations
+(1) The Controller may make regulations consistent with this Act for carrying out the purposes of this Act.
+
+Section 88. Protection of action taken in good faith
+(1) No suit, prosecution, or other legal proceedings shall lie against the Central Government or any officer of the Central Government for anything which is done or intended to be done in good faith under this Act.
+
+Section 93. Power to issue directions
+(1) The Central Government may issue directions to the Controller for the effective implementation of the provisions of this Act.
+
+Section 94. Power to delegate
+(1) The Central Government may, by notification in the Official Gazette, delegate any of its powers under this Act to any officer or authority.
+
+Section 95. Repeal and savings
+(1) The Information Technology (Amendment) Act, 2008 is hereby repealed, but such repeal shall not affect the previous operation of the Act or anything duly done or suffered thereunder.
+
+This concludes the key sections of the Information Technology Act, 2000.

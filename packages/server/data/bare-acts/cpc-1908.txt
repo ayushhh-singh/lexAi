@@ -1,0 +1,102 @@
+Code of Civil Procedure, 1908
+=============================
+
+CHAPTER I — PRELIMINARY
+
+Section 1. Short title, extent and commencement
+(1) This Act may be called the Code of Civil Procedure, 1908.
+(2) It extends to the whole of India except the State of Jammu and Kashmir.
+(3) It shall come into force on the first day of January, 1909.
+
+Section 2. Definitions
+In this Act, unless there is anything repugnant in the subject or context,—
+(a) "Code" means the Code of Civil Procedure, 1908;
+(b) "Court" means the Civil Court;
+(c) "District" means the District as defined in the Code of Criminal Procedure, 1973;
+(d) "Judgment" means the statement given by the judge on the grounds of a decree or order.
+
+CHAPTER II — OF THE CONSTITUTION OF COURTS
+
+Section 3. Courts to be subordinate to the High Court
+All Courts shall be subordinate to the High Court.
+
+Section 4. Savings
+Nothing in this Code shall be deemed to affect any special jurisdiction or power conferred by any other law.
+
+CHAPTER III — OF THE INSTITUTION OF SUITS
+
+Section 9. Courts to try all civil suits unless barred
+The Courts shall have jurisdiction to try all civil suits except those of which their cognizance is either expressly or impliedly barred.
+
+Section 10. Stay of suit
+No Court shall proceed with the trial of any suit in which the matter in issue is also directly and substantially in issue in a previously instituted suit between the same parties.
+
+Section 11. Res judicata
+No Court shall try any suit or issue in which the matter has been directly and substantially in issue in a former suit between the same parties.
+
+CHAPTER IV — OF THE PARTIES TO SUITS
+
+Section 20. Other suits to be instituted where defendants reside or cause of action arises
+Subject to the limitations aforesaid, every suit shall be instituted in a Court within the local limits of whose jurisdiction—
+(a) the defendant, or each of the defendants where there are more than one, at the time of the institution of the suit, resides, or
+(b) the cause of action, wholly or in part, arises.
+
+CHAPTER V — OF THE SUMMONS TO DEFENDANTS
+
+Section 27. Summons to be served on defendant
+The summons shall be served on the defendant in the manner provided in this Code.
+
+Section 28. Service of summons where defendant resides outside India
+Where the defendant resides outside India, the summons may be served by post or in such manner as the Court may direct.
+
+CHAPTER VI — OF THE PLAINT
+
+Section 26. Institution of suits
+Every suit shall be instituted by presenting a plaint or by making an application to the Court.
+
+Section 27. Contents of plaint
+The plaint shall contain the following particulars:—
+(a) the name of the Court in which the suit is brought;
+(b) the name, description and place of residence of the plaintiff;
+(c) the name, description and place of residence of the defendant.
+
+CHAPTER VII — OF THE WRITTEN STATEMENT, SET-OFF AND COUNTER-CLAIM
+
+Section 54. Set-off
+A defendant in a suit may set up by way of counter-claim against the claim of the plaintiff any right or claim which he may have against the plaintiff.
+
+CHAPTER VIII — OF THE DISCOVERY AND INSPECTION
+
+Section 30. Discovery and inspection
+The Court may, at any time, order the discovery and inspection of documents or other material objects.
+
+CHAPTER IX — OF THE HEARING OF THE SUIT AND OF THE ORDER THEREON
+
+Section 80. Notice
+No suit shall be instituted against the Government or a public officer in respect of any act done in the discharge of his official duty until the expiration of two months from the date on which the notice in writing is delivered to the Government.
+
+CHAPTER X — OF APPEALS
+
+Section 96. Appeal from decrees
+(1) Save where otherwise expressly provided in the body of this Code or in any other law for the time being in force, an appeal shall lie from the original decree passed by any Court.
+
+Section 100. Second appeal
+(1) Save as provided in the Code, no second appeal shall lie from any decree passed in appeal by the High Court.
+
+CHAPTER XI — OF REVISIONS
+
+Section 115. Revision
+The High Court may call for the record of any case which has been decided by any subordinate Court and if such subordinate Court appears to have exercised a jurisdiction not vested in it by law, or to have failed to exercise a jurisdiction so vested, or to have acted in the exercise of its jurisdiction illegally or with material irregularity, the High Court may make such order in the case as it thinks fit.
+
+CHAPTER XII — OF EXECUTION
+
+Section 36. Application of the Code to execution
+The provisions of this Code shall apply to the execution of decrees and orders.
+
+Section 47. Questions to be determined by the Court executing decree
+All questions arising between the parties to the suit in which the decree was made, or their representatives, and relating to the execution, discharge or satisfaction of the decree shall be determined by the Court executing it.
+
+CHAPTER XIII — OF MISCELLANEOUS
+
+Section 151. Inherent powers of the Court
+Nothing in this Code shall be deemed to limit or affect the inherent power of the Court to make such orders as may be necessary for the ends of justice or to prevent abuse of the process of the Court.

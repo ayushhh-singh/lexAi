@@ -61,6 +61,7 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const token = await getAccessToken();
+    console.log("[api] request:", config.method?.toUpperCase(), config.url, "hasToken:", !!token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -76,6 +77,7 @@ axiosInstance.interceptors.response.use(
     // Skip redirect for requests explicitly marked as auth-init
     const skipRedirect = error.config?.headers?.["X-Auth-Init"] === "true";
     if (status === 401 && !skipRedirect) {
+      console.warn("[api] 401 received, signing out. url:", error.config?.url, "skipRedirect:", skipRedirect);
       supabase.auth.signOut();
       window.location.href = "/login";
     } else if (status === 402) {
