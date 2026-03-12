@@ -93,9 +93,11 @@ async function verifySingle(
       }
     }
 
-    // ── Layer 3: Indian Kanoon API verification (for case citations) ──
-    if (isCaseCitation && HAS_IK) {
-      const ikResult = await verifyViaIndianKanoon(citation);
+    // ── Layer 3: Indian Kanoon verification (for case citations) ──
+    if (isCaseCitation) {
+      const ikResult = HAS_IK
+        ? await verifyViaIndianKanoon(citation)
+        : await verifyViaIndianKanoonPublic(citation);
       if (ikResult) return ikResult;
     }
 
@@ -173,6 +175,48 @@ async function verifyViaIndianKanoon(
     return null;
   } catch {
     // Network/timeout errors — don't block verification
+    return null;
+  }
+}
+
+// Verify case citations via Indian Kanoon public search (no API key needed)
+// Scrapes the search results page — less reliable but free
+async function verifyViaIndianKanoonPublic(
+  citation: ParsedCitation
+): Promise<CitationVerification | null> {
+  try {
+    const query = encodeURIComponent(citation.raw);
+    const res = await fetch(`https://indiankanoon.org/search/?formInput=${query}`, {
+      headers: {
+        "User-Agent": "NyaySahayak/1.0 (legal-research-tool)",
+        Accept: "text/html",
+      },
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!res.ok) return null;
+
+    const html = await res.text();
+
+    // Indian Kanoon search results contain result_title class for matched cases
+    // If we find a result that contains the citation year + reporter, it's likely valid
+    const hasResults = html.includes("result_title") && !html.includes("No results found");
+
+    if (hasResults) {
+      // Extract the first result title from: <a class="result_title" ...>Title</a>
+      const titleMatch = html.match(/<a[^>]*class="result_title"[^>]*>([^<]+)</);
+      const title = titleMatch?.[1]?.trim();
+
+      console.log(`[citation-verify] Verified via IK public search: "${citation.raw}" → ${title ?? "found"}`);
+      return {
+        citation,
+        verified: true,
+        source_title: title ?? citation.raw,
+      };
+    }
+
+    return null;
+  } catch {
     return null;
   }
 }

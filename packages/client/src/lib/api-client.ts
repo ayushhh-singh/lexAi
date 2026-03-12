@@ -223,6 +223,10 @@ export const api = {
       axiosInstance
         .get<ApiResponse<LegalDocument>>(`/documents/${validateId(id)}`)
         .then((r) => r.data),
+    update: (id: string, data: { case_matter_id?: string | null }) =>
+      axiosInstance
+        .patch<ApiResponse<LegalDocument>>(`/documents/${validateId(id)}`, data)
+        .then((r) => r.data),
     delete: (id: string) =>
       axiosInstance
         .delete<ApiResponse<void>>(`/documents/${validateId(id)}`)

@@ -271,6 +271,7 @@ export async function analyzeDocument(
 
   const sanitizedText = sanitizeDocumentText(extractedText);
 
+  console.log(`[docs] analyzeDocument calling Anthropic API — model=${ANALYSIS_MODEL}`);
   const response = await anthropic.messages.create({
     model: ANALYSIS_MODEL,
     max_tokens: 8192,
@@ -281,7 +282,8 @@ export async function analyzeDocument(
         content: `Analyze the following legal document:\n\n<document>\n${sanitizedText}\n</document>`,
       },
     ],
-  });
+  }, { timeout: 120_000 });
+  console.log(`[docs] analyzeDocument API response received — status=${response.stop_reason}, ${Date.now() - startTime}ms`);
 
   const textBlock = response.content.find((b) => b.type === "text");
   const rawJson = textBlock?.type === "text" ? textBlock.text : "";

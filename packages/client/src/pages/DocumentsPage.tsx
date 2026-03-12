@@ -174,19 +174,40 @@ export function DocumentsPage() {
     }
   };
 
-  // Ask Follow-up: navigate to chat with document context (via sessionStorage to avoid URL length limits)
+  // Ask Follow-up: navigate to chat with document analysis context
   const handleAskFollowUp = () => {
     if (!analysisResult) return;
-    const context = `Document: ${analysisResult.document.title}\n\nSummary: ${analysisResult.analysis.summary}`;
+    const { analysis, document: doc } = analysisResult;
+    const context = [
+      `I just analyzed a document titled "${doc.title}". Here is the analysis:`,
+      ``,
+      `**Summary:** ${analysis.summary}`,
+      ``,
+      `**Key Issues:** ${analysis.key_issues.map((i) => `${i.title} (${i.severity}): ${i.description}`).join("; ")}`,
+      ``,
+      `**Relevant Statutes:** ${analysis.relevant_statutes.map((s) => `${s.name} ${s.section} — ${s.relevance}`).join("; ")}`,
+      ``,
+      `**Risks:** ${analysis.risk_assessment.map((r) => `${r.area} (${r.level}): ${r.description}`).join("; ")}`,
+      ``,
+      `Based on this analysis, I have some follow-up questions.`,
+    ].join("\n");
     sessionStorage.setItem("nyay_chat_context", context);
     navigate("/chat");
   };
 
-  // Draft Response: navigate to drafts with context
+  // Draft Response: navigate to template picker with analysis context attached
   const handleDraftResponse = () => {
     if (!analysisResult) return;
-    sessionStorage.setItem("nyay_draft_context", analysisResult.analysis.summary.slice(0, 2000));
-    navigate("/drafts");
+    const { analysis, document: doc } = analysisResult;
+    const context = JSON.stringify({
+      documentTitle: doc.title,
+      summary: analysis.summary,
+      key_issues: analysis.key_issues,
+      relevant_statutes: analysis.relevant_statutes,
+      next_steps: analysis.next_steps,
+    });
+    sessionStorage.setItem("nyay_draft_context", context);
+    navigate("/drafts?from=analysis");
   };
 
   // ─── Render ────────────────────────────────────────────────────────

@@ -283,7 +283,7 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
       max_tokens: 16384,
       system: "You are an expert Indian legal professional. Generate comprehensive, professionally formatted case summary reports as PDF documents. Always use code_execution to create the actual PDF file.",
       messages: [{ role: "user", content: prompt }],
-      tools: [{ type: "code_execution_20260120" }],
+      tools: [{ type: "code_execution_20260120", name: "code_execution" }],
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -299,10 +299,13 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
 
     for (const block of aiResponse.content) {
       if (block.type === "text") text += block.text;
-      if (block.type === "code_execution_result" && "content" in block) {
-        const content = block.content as Array<{ type: string; file_id?: string }>;
-        for (const item of content) {
-          if (item.type === "file" && item.file_id) fileId = item.file_id;
+      if (block.type === "bash_code_execution_tool_result" && block.content) {
+        const result = block.content;
+        const content = result.content as Array<{ type: string; file_id?: string }> | undefined;
+        if (content) {
+          for (const item of content) {
+            if (item.type === "bash_code_execution_output" && item.file_id) fileId = item.file_id;
+          }
         }
       }
     }
@@ -317,8 +320,17 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
 
     sendEvent({ type: "progress", step: "downloading", message: "Downloading report..." });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fileResponse = await (anthropic as any).files.retrieveContent(fileId);
+    // SDK v0.30.1 lacks beta.files — use raw HTTP to download
+    const fileResponse = await fetch(`https://api.anthropic.com/v1/files/${fileId}/content`, {
+      headers: {
+        "x-api-key": config.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "files-api-2025-04-14",
+      },
+    });
+    if (!fileResponse.ok) {
+      throw new Error(`File download failed: ${fileResponse.status} ${fileResponse.statusText}`);
+    }
     const arrayBuffer = await fileResponse.arrayBuffer();
     const fileBuffer = Buffer.from(arrayBuffer);
 

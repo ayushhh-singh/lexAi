@@ -43,6 +43,7 @@ export function LimitationCalculator({ caseId: _caseId, caseType, caseDescriptio
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [showExclusions, setShowExclusions] = useState(false);
   const [addingDeadline, setAddingDeadline] = useState(false);
+  const [suggestEmpty, setSuggestEmpty] = useState(false);
 
   // Exclusions
   const [s12Days, setS12Days] = useState(0);
@@ -97,8 +98,8 @@ export function LimitationCalculator({ caseId: _caseId, caseType, caseDescriptio
         exclusions: Object.keys(exclusions).length > 0 ? exclusions : undefined,
       });
       setCalculation((res.data ?? null) as LimitationCalculation | null);
-    } catch {
-      // Silently fail
+    } catch (err) {
+      console.error("[LimitationCalculator] calculate failed:", err);
     } finally {
       setLoading(false);
     }
@@ -113,7 +114,9 @@ export function LimitationCalculator({ caseId: _caseId, caseType, caseDescriptio
         case_type: caseType,
         description: caseDescription,
       });
-      setSuggestions((res.data ?? []) as LimitationSuggestion[]);
+      const data = (res.data ?? []) as LimitationSuggestion[];
+      setSuggestions(data);
+      setSuggestEmpty(data.length === 0);
     } catch {
       // Silently fail
     } finally {
@@ -203,6 +206,16 @@ export function LimitationCalculator({ caseId: _caseId, caseType, caseDescriptio
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* No suggestions found */}
+      {suggestEmpty && suggestions.length === 0 && (
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+          <p className="flex items-center gap-2 font-body text-sm text-gray-500">
+            <Info className="h-4 w-4 shrink-0 text-gray-400" />
+            No matching limitation periods found for this case type. Please select a category and period manually below.
+          </p>
         </div>
       )}
 

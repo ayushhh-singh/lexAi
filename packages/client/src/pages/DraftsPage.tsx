@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Search,
   MailWarning,
@@ -8,6 +8,8 @@ import {
   FileLock2,
   Stamp,
   ArrowRight,
+  FileText,
+  X,
 } from "lucide-react";
 import { TEMPLATES, getTemplatesByPracticeArea } from "../lib/templates";
 import type { TemplateDefinition } from "../lib/templates";
@@ -58,8 +60,25 @@ function TemplateCard({ template }: { template: TemplateDefinition }) {
 }
 
 export function DraftsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [activeArea, setActiveArea] = useState<string | null>(null);
+
+  // Check if we arrived from document analysis
+  const fromAnalysis = searchParams.get("from") === "analysis";
+  const analysisContext = useMemo(() => {
+    if (!fromAnalysis) return null;
+    try {
+      const raw = sessionStorage.getItem("nyay_draft_context");
+      if (raw) return JSON.parse(raw) as { documentTitle?: string; summary?: string };
+    } catch { /* ignore */ }
+    return null;
+  }, [fromAnalysis]);
+
+  const dismissAnalysisContext = () => {
+    sessionStorage.removeItem("nyay_draft_context");
+    setSearchParams({}, { replace: true });
+  };
 
   const grouped = getTemplatesByPracticeArea();
   const practiceAreas = Object.keys(grouped);
@@ -92,6 +111,28 @@ export function DraftsPage() {
           Select a template to generate AI-powered legal documents.
         </p>
       </div>
+
+      {/* Analysis context banner */}
+      {fromAnalysis && analysisContext && (
+        <div className="flex items-start gap-3 rounded-xl border border-accent/20 bg-accent/5 p-4">
+          <FileText className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+          <div className="flex-1 min-w-0">
+            <p className="font-heading text-sm font-semibold text-navy-600">
+              Drafting from document analysis
+            </p>
+            <p className="mt-0.5 font-body text-xs text-gray-600 truncate">
+              {analysisContext.documentTitle || "Analyzed Document"} — select a template below and fields will be pre-filled from the analysis.
+            </p>
+          </div>
+          <button
+            onClick={dismissAnalysisContext}
+            className="shrink-0 rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+            aria-label="Dismiss"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Search + Filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -220,11 +220,22 @@ router.post("/generate", requireCredits(15), async (req: Request, res: Response,
 // ─── GET / — list user's documents ──────────────────────────────────
 router.get("/", async (req: Request, res: Response, next) => {
   try {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("legal_documents")
-      .select("id, title, document_type, mime_type, file_size, generation_method, created_at")
+      .select("id, title, document_type, mime_type, file_size, generation_method, case_matter_id, created_at")
       .eq("user_id", req.user!.id)
       .order("created_at", { ascending: false });
+
+    // Filter by case if provided
+    const caseId = req.query.case_id as string | undefined;
+    if (caseId) {
+      if (!UUID_RE.test(caseId)) {
+        throw new AppError(400, "BAD_REQUEST", "Invalid case_id");
+      }
+      query = query.eq("case_matter_id", caseId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error(`[docs] GET / query error — userId=${req.user!.id}:`, error.message);
@@ -595,6 +606,60 @@ router.post(
     }
   }
 );
+
+// ─── PATCH /:id — update document (link to case) ────────────────────
+router.patch("/:id", async (req: Request, res: Response, next) => {
+  try {
+    if (!UUID_RE.test(req.params.id)) {
+      throw new AppError(400, "BAD_REQUEST", "Invalid document ID");
+    }
+
+    const { data: doc } = await supabaseAdmin
+      .from("legal_documents")
+      .select("id, user_id")
+      .eq("id", req.params.id)
+      .single();
+
+    if (!doc || doc.user_id !== req.user!.id) {
+      throw new AppError(404, "NOT_FOUND", "Document not found");
+    }
+
+    const { case_matter_id } = req.body;
+
+    // Validate case ownership if linking
+    if (case_matter_id) {
+      if (!UUID_RE.test(case_matter_id)) {
+        throw new AppError(400, "BAD_REQUEST", "Invalid case ID");
+      }
+      const { data: caseMatter } = await supabaseAdmin
+        .from("case_matters")
+        .select("id")
+        .eq("id", case_matter_id)
+        .eq("user_id", req.user!.id)
+        .single();
+
+      if (!caseMatter) {
+        throw new AppError(404, "NOT_FOUND", "Case not found or access denied");
+      }
+    }
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("legal_documents")
+      .update({ case_matter_id: case_matter_id || null })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new AppError(500, "UPDATE_ERROR", "Failed to update document");
+    }
+
+    console.log(`[docs] PATCH /:id — docId=${req.params.id}, case_matter_id=${case_matter_id ?? "null"}`);
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // ─── DELETE /:id — delete a document ────────────────────────────────
 router.delete("/:id", async (req: Request, res: Response, next) => {

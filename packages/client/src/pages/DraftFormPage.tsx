@@ -150,7 +150,44 @@ export function DraftFormPage() {
   const navigate = useNavigate();
   const template = getTemplateById(templateId || "");
 
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    // Pre-fill from document analysis context if available
+    try {
+      const raw = sessionStorage.getItem("nyay_draft_context");
+      if (raw) {
+        sessionStorage.removeItem("nyay_draft_context");
+        const ctx = JSON.parse(raw);
+        const prefilled: Record<string, string> = {};
+        if (ctx.summary) {
+          // Pre-fill legal-notice fields from document analysis
+          prefilled["subject"] = `Response to: ${ctx.documentTitle || "Analyzed Document"}`;
+          prefilled["facts"] = ctx.summary;
+          if (ctx.next_steps?.length) {
+            prefilled["demand"] = ctx.next_steps.join("\n");
+          }
+          // Also fill common fields used by other templates
+          if (ctx.relevant_statutes?.length) {
+            prefilled["grounds"] = ctx.relevant_statutes
+              .map((s: { name: string; section: string; relevance: string }) => `${s.name}, ${s.section} — ${s.relevance}`)
+              .join("\n");
+          }
+          if (ctx.key_issues?.length) {
+            prefilled["statements"] = ctx.key_issues
+              .map((i: { title: string; description: string }) => `${i.title}: ${i.description}`)
+              .join("\n\n");
+            prefilled["consequences"] = ctx.key_issues
+              .filter((i: { severity: string }) => i.severity === "high")
+              .map((i: { title: string; description: string }) => i.description)
+              .join("\n");
+          }
+        }
+        return prefilled;
+      }
+    } catch {
+      // ignore parse errors
+    }
+    return {};
+  });
   const [currentStep, setCurrentStep] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [generationStage, setGenerationStage] = useState<GenerationStage | "done" | "error">("analyzing");

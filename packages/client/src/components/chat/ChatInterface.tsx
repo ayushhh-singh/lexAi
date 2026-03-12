@@ -76,6 +76,19 @@ export function ChatInterface({ onConversationCreated, onOpenConversations }: Ch
 
   const { streamedText, isStreaming, citations, error, send } = useStreamChat();
   const { language } = useTranslation();
+  const contextSentRef = useRef(false);
+
+  // Auto-send document analysis context from sessionStorage (set by "Ask Follow-up")
+  useEffect(() => {
+    if (contextSentRef.current || conversationId) return;
+    const context = sessionStorage.getItem("nyay_chat_context");
+    if (context) {
+      sessionStorage.removeItem("nyay_chat_context");
+      contextSentRef.current = true;
+      // Delay slightly so the component is fully mounted
+      setTimeout(() => sendMessage(context), 100);
+    }
+  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load messages when conversationId changes
   useEffect(() => {
