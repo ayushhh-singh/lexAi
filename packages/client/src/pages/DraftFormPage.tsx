@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -150,45 +150,76 @@ export function DraftFormPage() {
   const navigate = useNavigate();
   const template = getTemplateById(templateId || "");
 
-  const [values, setValues] = useState<Record<string, string>>(() => {
-    // Pre-fill from document analysis context if available
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [currentStep, setCurrentStep] = useState(0);
+
+  // Pre-fill from document analysis context (set by "Draft Response" on analysis page)
+  useEffect(() => {
+    if (!template) return;
     try {
       const raw = sessionStorage.getItem("nyay_draft_context");
-      if (raw) {
-        sessionStorage.removeItem("nyay_draft_context");
-        const ctx = JSON.parse(raw);
-        const prefilled: Record<string, string> = {};
-        if (ctx.summary) {
-          // Pre-fill legal-notice fields from document analysis
-          prefilled["subject"] = `Response to: ${ctx.documentTitle || "Analyzed Document"}`;
-          prefilled["facts"] = ctx.summary;
-          if (ctx.next_steps?.length) {
-            prefilled["demand"] = ctx.next_steps.join("\n");
-          }
-          // Also fill common fields used by other templates
-          if (ctx.relevant_statutes?.length) {
-            prefilled["grounds"] = ctx.relevant_statutes
-              .map((s: { name: string; section: string; relevance: string }) => `${s.name}, ${s.section} — ${s.relevance}`)
-              .join("\n");
-          }
-          if (ctx.key_issues?.length) {
-            prefilled["statements"] = ctx.key_issues
-              .map((i: { title: string; description: string }) => `${i.title}: ${i.description}`)
-              .join("\n\n");
-            prefilled["consequences"] = ctx.key_issues
-              .filter((i: { severity: string }) => i.severity === "high")
-              .map((i: { title: string; description: string }) => i.description)
-              .join("\n");
-          }
+      if (!raw) return;
+      const ctx = JSON.parse(raw);
+      if (!ctx.summary) return;
+
+      // Build a map of analysis data keyed by template field keys
+      const fieldKeys = new Set(template.fields.map((f) => f.key));
+      const prefilled: Record<string, string> = {};
+
+      // Map analysis data to matching template fields
+      if (fieldKeys.has("subject")) {
+        prefilled["subject"] = `Response to: ${ctx.documentTitle || "Analyzed Document"}`;
+      }
+      if (fieldKeys.has("facts")) {
+        prefilled["facts"] = ctx.summary;
+      }
+      if (fieldKeys.has("jurisdiction_facts")) {
+        prefilled["jurisdiction_facts"] = ctx.summary;
+      }
+      if (fieldKeys.has("purpose")) {
+        prefilled["purpose"] = ctx.summary;
+      }
+      if (fieldKeys.has("demand") && ctx.next_steps?.length) {
+        prefilled["demand"] = ctx.next_steps.join("\n");
+      }
+      if (fieldKeys.has("prayer") && ctx.next_steps?.length) {
+        prefilled["prayer"] = ctx.next_steps.join("\n");
+      }
+      if (fieldKeys.has("grounds") && ctx.relevant_statutes?.length) {
+        prefilled["grounds"] = ctx.relevant_statutes
+          .map((s: { name: string; section: string; relevance: string }) => `${s.name}, ${s.section} — ${s.relevance}`)
+          .join("\n");
+      }
+      if (fieldKeys.has("sections_charged") && ctx.relevant_statutes?.length) {
+        prefilled["sections_charged"] = ctx.relevant_statutes
+          .map((s: { name: string; section: string }) => `${s.section}, ${s.name}`)
+          .join("; ");
+      }
+      if (fieldKeys.has("statements") && ctx.key_issues?.length) {
+        prefilled["statements"] = ctx.key_issues
+          .map((i: { title: string; description: string }) => `${i.title}: ${i.description}`)
+          .join("\n\n");
+      }
+      if (fieldKeys.has("consequences") && ctx.key_issues?.length) {
+        const highIssues = ctx.key_issues.filter((i: { severity: string }) => i.severity === "high");
+        if (highIssues.length) {
+          prefilled["consequences"] = highIssues
+            .map((i: { title: string; description: string }) => i.description)
+            .join("\n");
         }
-        return prefilled;
+      }
+      if (fieldKeys.has("interim_relief") && ctx.next_steps?.length) {
+        prefilled["interim_relief"] = ctx.next_steps[0];
+      }
+
+      // Only set values if we matched at least one field
+      if (Object.keys(prefilled).length > 0) {
+        setValues((prev) => ({ ...prefilled, ...prev }));
       }
     } catch {
       // ignore parse errors
     }
-    return {};
-  });
-  const [currentStep, setCurrentStep] = useState(0);
+  }, [template]);
   const [generating, setGenerating] = useState(false);
   const [generationStage, setGenerationStage] = useState<GenerationStage | "done" | "error">("analyzing");
   const [errorMessage, setErrorMessage] = useState("");

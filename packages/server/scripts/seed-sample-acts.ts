@@ -199,7 +199,7 @@ async function main() {
   const embeddings = await generateEmbeddings(toIngest.map((s) => s.content));
 
   const records: ChunkRecord[] = toIngest.map((s, i) => ({
-    source_type: "bare_act" as const,
+    source_type: "act" as const,
     source_title: s.source_title,
     section_ref: s.section_ref,
     content: s.content,

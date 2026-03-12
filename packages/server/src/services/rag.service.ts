@@ -409,17 +409,32 @@ export async function explain(
 ): Promise<string> {
   console.log(`[rag] explain start — query="${query.slice(0, 80)}", contextChars=${context.length}`);
   const startTime = Date.now();
+  const hasContext = context.trim().length > 0;
+
+  const systemPrompt = hasContext
+    ? "You are a legal research assistant. Answer the query using ONLY the provided context.\n" +
+      "Cite every claim with [Source N] notation. If context is insufficient, say so.\n" +
+      "Use Indian legal terminology. Be precise and concise."
+    : "You are a legal research assistant specializing in Indian law.\n" +
+      "No sources from the knowledge base matched this query. " +
+      "Answer using your own knowledge of Indian law, but clearly state at the beginning " +
+      "that this is based on your general knowledge and not from verified sources in the database.\n" +
+      "Advise the user to verify with authoritative sources.\n" +
+      "Use Indian legal terminology. Be precise and concise. " +
+      "For offences after 1 July 2024, reference BNS/BNSS/BSA; for prior, IPC/CrPC/IEA.";
+
+  const userContent = hasContext
+    ? `<context>\n${context}\n</context>\n\n<query>\n${query}\n</query>`
+    : `<query>\n${query}\n</query>`;
+
   const response = await anthropic.messages.create({
     model: EXPLAIN_MODEL,
     max_tokens: 2048,
-    system:
-      "You are a legal research assistant. Answer the query using ONLY the provided context.\n" +
-      "Cite every claim with [Source N] notation. If context is insufficient, say so.\n" +
-      "Use Indian legal terminology. Be precise and concise.",
+    system: systemPrompt,
     messages: [
       {
         role: "user",
-        content: `<context>\n${context}\n</context>\n\n<query>\n${query}\n</query>`,
+        content: userContent,
       },
     ],
   });

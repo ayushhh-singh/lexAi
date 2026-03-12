@@ -94,14 +94,6 @@ This must run before client or server can start (they import from `@nyay/shared`
 
 This populates the database with Indian legal content for RAG search.
 
-**Option A — Quick seed (3 acts, ~14 sections, faster):**
-```bash
-cd packages/server
-npx tsx scripts/seed-sample-acts.ts
-cd ../..
-```
-
-**Option B — Full seed (16 acts, comprehensive):**
 ```bash
 cd packages/server
 npx tsx scripts/generate-bare-acts.ts    # Generate act text files via GPT
@@ -171,9 +163,8 @@ npx supabase stop
 | `npx supabase stop` | root | Stop local Supabase |
 | `npx supabase status` | root | Show URLs, keys, ports |
 | `npx supabase db reset` | root | Wipe DB + re-run all migrations + seed |
-| `npx tsx scripts/seed-sample-acts.ts` | `packages/server` | Quick seed (3 acts, dev) |
 | `npx tsx scripts/generate-bare-acts.ts` | `packages/server` | Generate all 16 act text files via GPT |
-| `npx tsx scripts/seed-knowledge-base.ts` | `packages/server` | Full seed (16 acts, prod) |
+| `npx tsx scripts/seed-knowledge-base.ts` | `packages/server` | Seed knowledge base (16 acts) |
 | `npx tsx scripts/upload-skills.ts upload --all` | `packages/server` | Upload Claude Skills |
 | `npx tsx scripts/upload-skills.ts list` | `packages/server` | List uploaded skills |
 
@@ -487,7 +478,7 @@ Railway auto-deploys on env change. Vercel needs a manual redeploy from dashboar
 | Can't login with password | Password only works if you used `/signup`. OTP accounts must use OTP. |
 | 401 on all requests after DB reset | Clear browser `localStorage`, sign up again |
 | OTP not arriving (local) | Check Mailpit at http://127.0.0.1:54324 |
-| Knowledge base empty | `cd packages/server && npx tsx scripts/seed-sample-acts.ts` |
+| Knowledge base empty | `cd packages/server && npx tsx scripts/generate-bare-acts.ts && npx tsx scripts/seed-knowledge-base.ts` |
 | Pricing cards hidden | Set `SHOW_PRICING=true` + `VITE_SHOW_PRICING=true`, restart |
 | Port 3001/5173 in use | `lsof -ti:3001 \| xargs kill -9` |
 | Anthropic 402 error | Add credits at https://console.anthropic.com/settings/billing |
