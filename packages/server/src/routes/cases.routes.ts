@@ -30,8 +30,10 @@ router.post("/", async (req: Request, res: Response, next) => {
       throw new AppError(400, "VALIDATION_ERROR", parsed.error.issues[0].message);
     }
     const caseMatter = await casesService.create(req.user!.id, parsed.data);
+    console.log(`[cases] POST / — userId=${req.user!.id}, caseId=${caseMatter.id}, title="${caseMatter.title?.slice(0, 50)}"`);
     res.status(201).json({ success: true, data: caseMatter });
   } catch (err) {
+    console.error(`[cases] POST / error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
     next(err);
   }
 });
@@ -44,6 +46,7 @@ router.get("/", async (req: Request, res: Response, next) => {
       throw new AppError(400, "VALIDATION_ERROR", parsed.error.issues[0].message);
     }
     const { cases, total } = await casesService.list(req.user!.id, parsed.data);
+    console.log(`[cases] GET / — userId=${req.user!.id}, total=${total}, page=${parsed.data.page}`);
     const { page, limit } = parsed.data;
     res.json({
       success: true,
@@ -80,6 +83,7 @@ router.patch("/:id", async (req: Request, res: Response, next) => {
       throw new AppError(400, "VALIDATION_ERROR", parsed.error.issues[0].message);
     }
     const caseMatter = await casesService.update(id, req.user!.id, parsed.data);
+    console.log(`[cases] PATCH /:id — caseId=${id}, userId=${req.user!.id}`);
     res.json({ success: true, data: caseMatter });
   } catch (err) {
     next(err);
@@ -91,8 +95,10 @@ router.delete("/:id", async (req: Request, res: Response, next) => {
   try {
     const id = validateUUID(req.params.id);
     await casesService.delete(id, req.user!.id);
+    console.log(`[cases] DELETE /:id — caseId=${id}, userId=${req.user!.id}`);
     res.json({ success: true });
   } catch (err) {
+    console.error(`[cases] DELETE /:id error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
     next(err);
   }
 });
@@ -123,6 +129,7 @@ router.post("/:id/deadlines", async (req: Request, res: Response, next) => {
     if (title.length > 500) {
       throw new AppError(400, "VALIDATION_ERROR", "Deadline title must be under 500 characters");
     }
+    console.log(`[cases] POST /:id/deadlines — caseId=${id}, userId=${req.user!.id}, type=${deadline_type}`);
     const deadline = await casesService.createDeadline(id, req.user!.id, {
       title,
       description,
@@ -169,6 +176,7 @@ router.post("/:id/notes", async (req: Request, res: Response, next) => {
       throw new AppError(400, "VALIDATION_ERROR", "Note content must be under 10,000 characters");
     }
     const note = await casesService.createNote(id, req.user!.id, content.trim());
+    console.log(`[cases] POST /:id/notes — caseId=${id}, userId=${req.user!.id}, noteId=${note.id}`);
     res.status(201).json({ success: true, data: note });
   } catch (err) {
     next(err);
@@ -179,6 +187,7 @@ router.delete("/notes/:noteId", async (req: Request, res: Response, next) => {
   try {
     const noteId = validateUUID(req.params.noteId);
     await casesService.deleteNote(noteId, req.user!.id);
+    console.log(`[cases] DELETE /notes/:noteId — noteId=${noteId}, userId=${req.user!.id}`);
     res.json({ success: true });
   } catch (err) {
     next(err);
@@ -189,6 +198,7 @@ router.delete("/notes/:noteId", async (req: Request, res: Response, next) => {
 router.post("/:id/summary", requireCredits(15), async (req: Request, res: Response, next) => {
   try {
     const id = validateUUID(req.params.id);
+    console.log(`[cases] POST /:id/summary — caseId=${id}, userId=${req.user!.id}`);
     const context = await casesService.getSummaryContext(id, req.user!.id);
 
     // SSE headers
@@ -269,11 +279,11 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {
-      model: "claude-sonnet-4-5-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 16384,
       system: "You are an expert Indian legal professional. Generate comprehensive, professionally formatted case summary reports as PDF documents. Always use code_execution to create the actual PDF file.",
       messages: [{ role: "user", content: prompt }],
-      tools: [{ type: "code_execution" }],
+      tools: [{ type: "code_execution_20260120" }],
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -298,6 +308,7 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
     }
 
     if (!fileId) {
+      console.error(`[cases] summary generation produced no file — caseId=${id}`);
       sendEvent({ type: "error", message: "Summary generation did not produce a PDF file." });
       res.statusCode = 500;
       res.end();
@@ -320,7 +331,10 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
       .from("documents")
       .upload(fileName, fileBuffer, { contentType: "application/pdf", upsert: false });
 
-    if (uploadError) throw new Error(`Storage upload failed: ${uploadError.message}`);
+    if (uploadError) {
+      console.error(`[cases] summary storage upload failed — caseId=${id}:`, uploadError.message);
+      throw new Error(`Storage upload failed: ${uploadError.message}`);
+    }
 
     const { data: urlData } = supabaseAdmin.storage.from("documents").getPublicUrl(fileName);
     const fileUrl = urlData.publicUrl;
@@ -344,11 +358,13 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
       .single();
 
     if (insertError) {
+      console.error(`[cases] failed to save summary record — caseId=${id}:`, insertError.message);
       await supabaseAdmin.storage.from("documents").remove([fileName]).catch(() => {});
       throw new Error(`Failed to save document record: ${insertError.message}`);
     }
 
     const tokensUsed = aiResponse.usage.input_tokens + aiResponse.usage.output_tokens;
+    console.log(`[cases] summary complete — caseId=${id}, docId=${doc.id}, tokens=${tokensUsed}, ${generationTimeMs}ms`);
 
     // Log to skill_generations
     await supabaseAdmin.from("skill_generations").insert({
@@ -376,6 +392,7 @@ IMPORTANT: Use the code_execution tool to generate the PDF file using reportlab.
     });
     res.end();
   } catch (err) {
+    console.error(`[cases] POST /:id/summary error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
     res.statusCode = 500;
     if (res.headersSent) {
       const isClientError = err instanceof AppError && err.statusCode < 500;

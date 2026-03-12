@@ -23,10 +23,13 @@ router.post("/search", requireCredits(1), async (req: Request, res: Response, ne
     }
 
     const safeLimit = Math.min(Math.max(limit ?? 10, 1), 20);
+    console.log(`[research] POST /search — userId=${req.user!.id}, query="${query.trim().slice(0, 80)}", limit=${safeLimit}`);
+    const startTime = Date.now();
 
     const searchResults = await ragService.hybridSearch(query.trim(), filters ?? {}, safeLimit);
     const reranked = await ragService.rerank(query.trim(), searchResults, Math.min(safeLimit, 5));
 
+    console.log(`[research] POST /search done — results=${reranked.length}, ${Date.now() - startTime}ms`);
     res.json({
       success: true,
       data: {
@@ -36,6 +39,7 @@ router.post("/search", requireCredits(1), async (req: Request, res: Response, ne
       },
     });
   } catch (err) {
+    console.error(`[research] POST /search error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
     next(err);
   }
 });
@@ -54,10 +58,12 @@ router.post("/explain", requireCredits(2), async (req: Request, res: Response, n
 
     const trimmedQuery = query.trim();
     const queryHash = ragService.hashQuery(trimmedQuery, filters);
+    console.log(`[research] POST /explain — userId=${req.user!.id}, query="${trimmedQuery.slice(0, 80)}", hash=${queryHash.slice(0, 12)}`);
 
     // Check cache
     const cached = await ragService.getCachedExplanation(queryHash);
     if (cached) {
+      console.log(`[research] cache hit — hash=${queryHash.slice(0, 12)}`);
       res.json({
         success: true,
         data: {
@@ -71,10 +77,14 @@ router.post("/explain", requireCredits(2), async (req: Request, res: Response, n
     }
 
     // Full pipeline: search -> rerank -> build context -> explain
+    console.log(`[research] cache miss — running full pipeline`);
+    const explainStart = Date.now();
     const searchResults = await ragService.hybridSearch(trimmedQuery, filters ?? {}, 20);
     const reranked = await ragService.rerank(trimmedQuery, searchResults, 5);
     const context = ragService.buildContext(reranked);
     const answer = await ragService.explain(trimmedQuery, context);
+
+    console.log(`[research] explain pipeline done — answerLen=${answer.length}, sources=${reranked.length}, ${Date.now() - explainStart}ms`);
 
     // Cache the result
     await ragService.cacheExplanation(
@@ -94,6 +104,7 @@ router.post("/explain", requireCredits(2), async (req: Request, res: Response, n
       },
     });
   } catch (err) {
+    console.error(`[research] POST /explain error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
     next(err);
   }
 });
@@ -116,6 +127,8 @@ router.post("/cases", requireCredits(1), async (req: Request, res: Response, nex
       return v.trim().slice(0, max);
     };
 
+    console.log(`[research] POST /cases — userId=${req.user!.id}, keywords="${body.keywords.trim().slice(0, 80)}"`);
+    const casesStart = Date.now();
     const result = await indianKanoonService.searchCaseLaw({
       keywords: body.keywords.trim(),
       court: sanitize(body.court),
@@ -126,8 +139,10 @@ router.post("/cases", requireCredits(1), async (req: Request, res: Response, nex
       limit: body.limit,
     });
 
+    console.log(`[research] POST /cases done — ${Date.now() - casesStart}ms`);
     res.json({ success: true, data: result });
   } catch (err) {
+    console.error(`[research] POST /cases error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
     next(err);
   }
 });

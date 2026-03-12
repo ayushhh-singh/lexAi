@@ -3,7 +3,7 @@ import { config } from "../lib/config.js";
 
 const anthropic = new Anthropic({ apiKey: config.ANTHROPIC_API_KEY });
 
-const CHAT_MODEL = "claude-sonnet-4-5-20250514";
+const CHAT_MODEL = "claude-sonnet-4-6";
 const CLASSIFY_MODEL = "claude-haiku-4-5-20251001";
 
 export interface ChatMessage {
@@ -18,6 +18,9 @@ export class AIService {
     onToken: (text: string) => void,
     onDone: (fullText: string, usage: { input: number; output: number }) => void | Promise<void>
   ): Promise<void> {
+    console.log(`[ai] streamChat start — ${messages.length} messages, model=${CHAT_MODEL}`);
+    const startTime = Date.now();
+
     const stream = anthropic.messages.stream({
       model: CHAT_MODEL,
       max_tokens: 4096,
@@ -32,15 +35,24 @@ export class AIService {
       onToken(text);
     });
 
-    const finalMessage = await stream.finalMessage();
+    try {
+      const finalMessage = await stream.finalMessage();
+      const elapsed = Date.now() - startTime;
+      console.log(`[ai] streamChat done — ${elapsed}ms, tokens: in=${finalMessage.usage.input_tokens} out=${finalMessage.usage.output_tokens}, chars=${fullText.length}`);
 
-    await onDone(fullText, {
-      input: finalMessage.usage.input_tokens,
-      output: finalMessage.usage.output_tokens,
-    });
+      await onDone(fullText, {
+        input: finalMessage.usage.input_tokens,
+        output: finalMessage.usage.output_tokens,
+      });
+    } catch (err) {
+      console.error(`[ai] streamChat error after ${Date.now() - startTime}ms:`, err instanceof Error ? err.message : err);
+      throw err;
+    }
   }
 
   async classifyIntent(text: string): Promise<string> {
+    console.log(`[ai] classifyIntent — query length=${text.length}`);
+    const startTime = Date.now();
     const response = await anthropic.messages.create({
       model: CLASSIFY_MODEL,
       max_tokens: 50,
@@ -53,7 +65,9 @@ export class AIService {
     });
 
     const block = response.content[0];
-    return block.type === "text" ? block.text.trim().toLowerCase() : "general_query";
+    const intent = block.type === "text" ? block.text.trim().toLowerCase() : "general_query";
+    console.log(`[ai] classifyIntent result="${intent}" — ${Date.now() - startTime}ms`);
+    return intent;
   }
 }
 

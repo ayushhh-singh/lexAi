@@ -32,9 +32,12 @@ export async function semanticSearch(
   filters: SearchFilters = {},
   limit = 20
 ): Promise<ScoredChunk[]> {
+  console.log(`[rag] semanticSearch — query="${query.slice(0, 80)}", filters=${JSON.stringify(filters)}, limit=${limit}`);
+  const startTime = Date.now();
   const safeQuery = query.slice(0, MAX_QUERY_LENGTH);
   const safeSourceType = sanitizeSourceType(filters.source_type);
   const embedding = await embed(safeQuery);
+  console.log(`[rag] embedding generated — ${Date.now() - startTime}ms`);
 
   const { data, error } = await supabaseAdmin.rpc("match_chunks_semantic", {
     query_embedding: JSON.stringify(embedding),
@@ -42,9 +45,12 @@ export async function semanticSearch(
     filter_source_type: safeSourceType,
   });
 
-  if (error) throw new Error(`Semantic search failed: ${error.message}`);
+  if (error) {
+    console.error(`[rag] semanticSearch failed: ${error.message}`);
+    throw new Error(`Semantic search failed: ${error.message}`);
+  }
 
-  return (data ?? []).map((row) => ({
+  const results = (data ?? []).map((row) => ({
     id: row.id,
     source_type: row.source_type,
     source_title: row.source_title,
@@ -54,6 +60,8 @@ export async function semanticSearch(
     metadata: (row.metadata as Record<string, unknown>) ?? {},
     score: row.similarity,
   }));
+  console.log(`[rag] semanticSearch done — ${results.length} results, ${Date.now() - startTime}ms`);
+  return results;
 }
 
 // ---------------------------------------------------------------------------
@@ -64,6 +72,8 @@ export async function keywordSearch(
   filters: SearchFilters = {},
   limit = 20
 ): Promise<ScoredChunk[]> {
+  console.log(`[rag] keywordSearch — query="${query.slice(0, 80)}", limit=${limit}`);
+  const startTime = Date.now();
   const safeQuery = query.slice(0, MAX_QUERY_LENGTH);
   const safeSourceType = sanitizeSourceType(filters.source_type);
 
@@ -73,9 +83,12 @@ export async function keywordSearch(
     filter_source_type: safeSourceType,
   });
 
-  if (error) throw new Error(`Keyword search failed: ${error.message}`);
+  if (error) {
+    console.error(`[rag] keywordSearch failed: ${error.message}`);
+    throw new Error(`Keyword search failed: ${error.message}`);
+  }
 
-  return (data ?? []).map((row) => ({
+  const results = (data ?? []).map((row) => ({
     id: row.id,
     source_type: row.source_type,
     source_title: row.source_title,
@@ -85,6 +98,8 @@ export async function keywordSearch(
     metadata: (row.metadata as Record<string, unknown>) ?? {},
     score: row.fts_rank,
   }));
+  console.log(`[rag] keywordSearch done — ${results.length} results, ${Date.now() - startTime}ms`);
+  return results;
 }
 
 // ---------------------------------------------------------------------------
@@ -95,6 +110,8 @@ export async function hybridSearch(
   filters: SearchFilters = {},
   limit = 10
 ): Promise<ScoredChunk[]> {
+  console.log(`[rag] hybridSearch — query="${query.slice(0, 80)}", limit=${limit}`);
+  const startTime = Date.now();
   const [semantic, keyword] = await Promise.all([
     semanticSearch(query, filters, 20),
     keywordSearch(query, filters, 20),
@@ -119,10 +136,12 @@ export async function hybridSearch(
   });
 
   // Sort by combined RRF score, deduplicated by id
-  return Array.from(scoreMap.values())
+  const merged = Array.from(scoreMap.values())
     .sort((a, b) => b.rrfScore - a.rrfScore)
     .slice(0, limit)
     .map(({ chunk, rrfScore }) => ({ ...chunk, score: rrfScore }));
+  console.log(`[rag] hybridSearch done — semantic=${semantic.length}, keyword=${keyword.length}, merged=${merged.length}, ${Date.now() - startTime}ms`);
+  return merged;
 }
 
 // ---------------------------------------------------------------------------
@@ -133,8 +152,16 @@ export async function rerank(
   chunks: ScoredChunk[],
   topK = 5
 ): Promise<ScoredChunk[]> {
-  if (chunks.length === 0) return [];
-  if (chunks.length <= topK) return chunks;
+  if (chunks.length === 0) {
+    console.log(`[rag] rerank skipped — no chunks`);
+    return [];
+  }
+  if (chunks.length <= topK) {
+    console.log(`[rag] rerank skipped — ${chunks.length} chunks <= topK=${topK}`);
+    return chunks;
+  }
+  console.log(`[rag] rerank start — ${chunks.length} chunks, topK=${topK}`);
+  const startTime = Date.now();
 
   const top20 = chunks.slice(0, 20);
 
@@ -178,7 +205,9 @@ export async function rerank(
     score: scores.get(i + 1) ?? 5, // default to 5 if parsing fails
   }));
 
-  return scored.sort((a, b) => b.score - a.score).slice(0, topK);
+  const result = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+  console.log(`[rag] rerank done — ${result.length} results, scores=[${result.map(r => r.score).join(",")}], ${Date.now() - startTime}ms`);
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -216,8 +245,12 @@ export async function pipeline(
   chunks: ScoredChunk[];
   systemPrompt: string;
 }> {
+  console.log(`[rag] pipeline start — query="${query.slice(0, 80)}", history=${history.length}`);
+  const pipelineStart = Date.now();
+
   // 1. Classify intent
   const intent = await classifyQuery(query);
+  console.log(`[rag] pipeline intent="${intent}"`);
 
   // 2. Extract entities to refine search filters
   const filters = extractFilters(query);
@@ -255,6 +288,7 @@ export async function pipeline(
     .filter(Boolean)
     .join("\n");
 
+  console.log(`[rag] pipeline done — intent=${intent}, chunks=${reranked.length}, contextChars=${context.length}, ${Date.now() - pipelineStart}ms`);
   return { intent, context, chunks: reranked, systemPrompt };
 }
 
@@ -268,14 +302,17 @@ function sanitizeSourceType(value: string | undefined): string | null {
 }
 
 async function embed(text: string): Promise<number[]> {
+  const startTime = Date.now();
   const res = await openai.embeddings.create({
     model: EMBEDDING_MODEL,
     input: text,
   });
+  console.log(`[rag] embed done — ${res.data[0].embedding.length} dims, ${Date.now() - startTime}ms`);
   return res.data[0].embedding;
 }
 
 async function classifyQuery(query: string): Promise<QueryIntent> {
+  const startTime = Date.now();
   const response = await anthropic.messages.create({
     model: RERANK_MODEL,
     max_tokens: 50,
@@ -300,9 +337,11 @@ async function classifyQuery(query: string): Promise<QueryIntent> {
     "procedural_question",
     "opinion",
   ];
-  return valid.includes(text as QueryIntent)
+  const result = valid.includes(text as QueryIntent)
     ? (text as QueryIntent)
     : "general_query";
+  console.log(`[rag] classifyQuery="${result}" — ${Date.now() - startTime}ms`);
+  return result;
 }
 
 function extractFilters(query: string): SearchFilters {
@@ -333,6 +372,7 @@ export function hashQuery(query: string, filters?: SearchFilters): string {
 export async function getCachedExplanation(
   queryHash: string
 ): Promise<{ response: string; source_chunk_ids: string[] } | null> {
+  console.log(`[rag] getCachedExplanation — hash=${queryHash.slice(0, 12)}`);
   const { data } = await supabaseAdmin
     .from("research_cache")
     .select("response, source_chunk_ids")
@@ -341,7 +381,11 @@ export async function getCachedExplanation(
     .limit(1)
     .single();
 
-  if (!data) return null;
+  if (!data) {
+    console.log(`[rag] cache miss — hash=${queryHash.slice(0, 12)}`);
+    return null;
+  }
+  console.log(`[rag] cache hit — hash=${queryHash.slice(0, 12)}`);
   return { response: data.response, source_chunk_ids: data.source_chunk_ids ?? [] };
 }
 
@@ -363,6 +407,8 @@ export async function explain(
   query: string,
   context: string
 ): Promise<string> {
+  console.log(`[rag] explain start — query="${query.slice(0, 80)}", contextChars=${context.length}`);
+  const startTime = Date.now();
   const response = await anthropic.messages.create({
     model: EXPLAIN_MODEL,
     max_tokens: 2048,
@@ -379,7 +425,9 @@ export async function explain(
   });
 
   const block = response.content[0];
-  return block.type === "text" ? block.text : "";
+  const result = block.type === "text" ? block.text : "";
+  console.log(`[rag] explain done — ${result.length} chars, ${Date.now() - startTime}ms`);
+  return result;
 }
 
 export const ragService = {

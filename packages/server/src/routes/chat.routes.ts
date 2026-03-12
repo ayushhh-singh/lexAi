@@ -16,6 +16,7 @@ router.use(requireAuth);
 router.get("/conversations", async (req: Request, res: Response, next) => {
   try {
     const conversations = await chatService.getConversations(req.user!.id);
+    console.log(`[chat] GET /conversations — userId=${req.user!.id}, count=${conversations.length}`);
     res.json({ success: true, data: conversations });
   } catch (err) {
     next(err);
@@ -44,6 +45,7 @@ router.post("/conversations", async (req: Request, res: Response, next) => {
       practice_area,
       case_matter_id
     );
+    console.log(`[chat] POST /conversations — userId=${req.user!.id}, convId=${conversation.id}`);
     res.status(201).json({ success: true, data: conversation });
   } catch (err) {
     next(err);
@@ -64,6 +66,7 @@ router.get("/conversations/:id/messages", async (req: Request, res: Response, ne
 router.delete("/conversations/:id", async (req: Request, res: Response, next) => {
   try {
     await chatService.deleteConversation(req.params.id, req.user!.id);
+    console.log(`[chat] DELETE /conversations/:id — convId=${req.params.id}, userId=${req.user!.id}`);
     res.json({ success: true });
   } catch (err) {
     next(err);
@@ -86,6 +89,7 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
 
     // Validate language — default to "en"; allowlist to prevent arbitrary values
     const lang: "en" | "hi" = language === "hi" ? "hi" : "en";
+    console.log(`[chat] POST /stream — userId=${req.user!.id}, convId=${conversationId}, msgLen=${userMessage.length}, lang=${lang}`);
 
     const MAX_MESSAGE_LENGTH = 10_000;
     if (userMessage.length > MAX_MESSAGE_LENGTH) {
@@ -106,6 +110,7 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
 
     // 1. Save user message (verifies ownership internally)
     await chatService.saveMessage(conversationId, req.user!.id, "user", userMessage);
+    console.log(`[chat] user message saved — convId=${conversationId}`);
 
     // 2. Load conversation history (last 20 messages for context window)
     const history = await chatService.getMessages(conversationId, req.user!.id);
@@ -139,7 +144,10 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
       },
       // onDone — awaited by streamChat so errors propagate
       async (fullText, usage) => {
-        if (aborted) return;
+        if (aborted) {
+          console.warn(`[chat] stream aborted by client — convId=${conversationId}`);
+          return;
+        }
 
         // Citation verification: parse → verify → log gaps
         // Wrapped in try/catch so verification failure never loses the AI response
@@ -154,9 +162,10 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
         }
 
         // Save assistant message (always — even if citation verification failed)
+        console.log(`[chat] saving assistant message — convId=${conversationId}, chars=${fullText.length}, citations=${citations.length}`);
         await chatService.saveMessage(conversationId, req.user!.id, "assistant", fullText, {
           citations,
-          aiModel: "claude-sonnet-4-5-20250514",
+          aiModel: "claude-sonnet-4-6",
           tokensUsed: usage.input + usage.output,
           metadata: { input_tokens: usage.input, output_tokens: usage.output },
         });
@@ -166,6 +175,7 @@ router.post("/stream", requireCredits(1), async (req: Request, res: Response, ne
       }
     );
   } catch (err) {
+    console.error(`[chat] POST /stream error — userId=${req.user?.id}, convId=${req.body?.conversation_id}:`, err instanceof Error ? err.message : err);
     if (res.headersSent) {
       // Don't leak internal error details — send a generic message
       const isClientError = err instanceof AppError && err.statusCode < 500;

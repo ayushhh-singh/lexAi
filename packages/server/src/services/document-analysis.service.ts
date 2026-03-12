@@ -13,7 +13,7 @@ import type {
 const anthropic = new Anthropic({ apiKey: config.ANTHROPIC_API_KEY });
 const openai = new OpenAI({ apiKey: config.OPENAI_API_KEY });
 
-const ANALYSIS_MODEL = "claude-sonnet-4-5-20250514";
+const ANALYSIS_MODEL = "claude-sonnet-4-6";
 const MAX_TEXT_LENGTH = 100_000;
 
 export interface ExtractedText {
@@ -37,36 +37,48 @@ export async function extractText(
   buffer: Buffer,
   mimeType: string
 ): Promise<ExtractedText> {
+  console.log(`[docs] extractText start — mimeType=${mimeType}, bufferSize=${buffer.length}`);
+  const startTime = Date.now();
   if (mimeType === "application/pdf") {
-    return extractFromPDF(buffer);
+    const result = await extractFromPDF(buffer);
+    console.log(`[docs] extractText done — method=${result.method}, chars=${result.text.length}, ${Date.now() - startTime}ms`);
+    return result;
   }
 
   if (
     mimeType ===
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ) {
-    return extractFromDOCX(buffer);
+    const result = await extractFromDOCX(buffer);
+    console.log(`[docs] extractText done — method=${result.method}, chars=${result.text.length}, ${Date.now() - startTime}ms`);
+    return result;
   }
 
   if (mimeType.startsWith("image/")) {
-    return extractFromImage(buffer, mimeType);
+    const result = await extractFromImage(buffer, mimeType);
+    console.log(`[docs] extractText done — method=${result.method}, chars=${result.text.length}, ${Date.now() - startTime}ms`);
+    return result;
   }
 
+  console.error(`[docs] extractText unsupported mimeType=${mimeType}`);
   throw new Error(
     `Unsupported file type: ${mimeType}. Supported: PDF, DOCX, and images (PNG, JPG, WEBP).`
   );
 }
 
 async function extractFromPDF(buffer: Buffer): Promise<ExtractedText> {
+  console.log(`[docs] extractFromPDF — bufferSize=${buffer.length}`);
   const parser = new PDFParse({ data: new Uint8Array(buffer) });
   const result = await parser.getText();
   const text = result.text.trim();
 
   if (!text || text.length < 20) {
+    console.warn(`[docs] PDF text too short (${text.length} chars), falling back to Vision OCR`);
     // PDF might be scanned — fall back to Vision OCR
     return extractFromImage(buffer, "application/pdf");
   }
 
+  console.log(`[docs] extractFromPDF done — ${text.length} chars, ${result.total} pages`);
   return {
     text: text.slice(0, MAX_TEXT_LENGTH),
     pageCount: result.total,
@@ -86,10 +98,14 @@ async function extractFromImage(
   buffer: Buffer,
   mimeType: string
 ): Promise<ExtractedText> {
+  console.log(`[docs] extractFromImage — mimeType=${mimeType}, bufferSize=${buffer.length}`);
+  const startTime = Date.now();
   const base64 = buffer.toString("base64");
 
-  // For PDFs sent to vision, convert mime type
-  const imageType = mimeType === "application/pdf" ? "image/png" : mimeType;
+  // PDFs can't be sent as images to OpenAI — use Anthropic's native PDF support
+  if (mimeType === "application/pdf") {
+    return extractPDFViaAnthropic(buffer);
+  }
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -105,7 +121,7 @@ async function extractFromImage(
           {
             type: "image_url",
             image_url: {
-              url: `data:${imageType};base64,${base64}`,
+              url: `data:${mimeType};base64,${base64}`,
               detail: "high",
             },
           },
@@ -115,9 +131,49 @@ async function extractFromImage(
   });
 
   const text = response.choices[0]?.message?.content?.trim() || "";
+  console.log(`[docs] extractFromImage done — ${text.length} chars, ${Date.now() - startTime}ms`);
   return {
     text: text.slice(0, MAX_TEXT_LENGTH),
     method: "openai-vision",
+  };
+}
+
+async function extractPDFViaAnthropic(buffer: Buffer): Promise<ExtractedText> {
+  console.log(`[docs] extractPDFViaAnthropic — bufferSize=${buffer.length}`);
+  const startTime = Date.now();
+  const base64 = buffer.toString("base64");
+
+  const response = await anthropic.messages.create({
+    model: ANALYSIS_MODEL,
+    max_tokens: 4096,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "document",
+            source: {
+              type: "base64",
+              media_type: "application/pdf",
+              data: base64,
+            },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as any,
+          {
+            type: "text",
+            text: "Extract ALL text from this PDF document. Preserve the original formatting, headings, paragraphs, and structure as much as possible. If it's a legal document, preserve section numbers, article numbers, and citations exactly. Output only the extracted text, nothing else.",
+          },
+        ],
+      },
+    ],
+  });
+
+  const textBlock = response.content.find((b) => b.type === "text");
+  const text = textBlock?.type === "text" ? textBlock.text.trim() : "";
+  console.log(`[docs] extractPDFViaAnthropic done — ${text.length} chars, ${Date.now() - startTime}ms`);
+  return {
+    text: text.slice(0, MAX_TEXT_LENGTH),
+    method: "openai-vision", // keep compatible method name
   };
 }
 
@@ -206,6 +262,8 @@ export async function analyzeDocument(
   extractedText: string,
   language: "en" | "hi" = "en"
 ): Promise<AnalysisOutput> {
+  console.log(`[docs] analyzeDocument start — textLength=${extractedText.length}, language=${language}`);
+  const startTime = Date.now();
   const languageNote =
     language === "hi"
       ? "\n\nIMPORTANT: Write all analysis text in Hindi (Devanagari script). Legal citations, case names, act names, and section references should remain in English."
@@ -239,25 +297,29 @@ export async function analyzeDocument(
       .trim();
     rawParsed = JSON.parse(cleaned);
   } catch {
+    console.error(`[docs] analyzeDocument JSON parse failed — raw length=${rawJson.length}`);
     throw new Error("AI analysis returned invalid JSON. Please retry.");
   }
 
   // Validate shape at runtime — .catch() defaults handle missing/wrong severity values
   const result = analysisOutputSchema.safeParse(rawParsed);
   if (!result.success) {
+    console.error(`[docs] analyzeDocument Zod validation failed:`, result.error.issues.map((i) => i.message));
     throw new Error(
       `AI analysis returned malformed data: ${result.error.issues.map((i) => i.message).join(", ")}`
     );
   }
   const parsed = result.data;
 
+  const tokensUsed = response.usage.input_tokens + response.usage.output_tokens;
+  console.log(`[docs] analyzeDocument done — issues=${parsed.key_issues.length}, statutes=${parsed.relevant_statutes.length}, risks=${parsed.risk_assessment.length}, tokens=${tokensUsed}, ${Date.now() - startTime}ms`);
   return {
     summary: parsed.summary,
     key_issues: parsed.key_issues,
     relevant_statutes: parsed.relevant_statutes,
     risk_assessment: parsed.risk_assessment,
     next_steps: parsed.next_steps,
-    tokensUsed: response.usage.input_tokens + response.usage.output_tokens,
+    tokensUsed,
   };
 }
 
@@ -273,6 +335,8 @@ export async function generateAnalysisReport(
   },
   documentTitle: string
 ): Promise<{ fileId: string; tokensUsed: number }> {
+  console.log(`[docs] generateAnalysisReport start — document="${documentTitle}"`);
+  const startTime = Date.now();
   const prompt = `Generate a professional PDF analysis report for the following legal document analysis.
 
 DOCUMENT: ${documentTitle}
@@ -299,7 +363,7 @@ IMPORTANT: Use the code_execution tool to generate the PDF file.`;
     system:
       "You are a report generation assistant. Generate professional PDF reports using Python's reportlab library via code_execution.",
     messages: [{ role: "user", content: prompt }],
-    tools: [{ type: "code_execution" }],
+    tools: [{ type: "code_execution_20260120" }],
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const response: any = await anthropic.messages.create(params);
@@ -320,9 +384,11 @@ IMPORTANT: Use the code_execution tool to generate the PDF file.`;
   }
 
   if (!fileId) {
+    console.error(`[docs] generateAnalysisReport failed — no file produced, ${Date.now() - startTime}ms`);
     throw new Error("Report generation did not produce a file.");
   }
 
   const tokensUsed = response.usage.input_tokens + response.usage.output_tokens;
+  console.log(`[docs] generateAnalysisReport done — fileId=${fileId}, tokens=${tokensUsed}, ${Date.now() - startTime}ms`);
   return { fileId, tokensUsed };
 }

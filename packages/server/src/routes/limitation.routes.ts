@@ -31,6 +31,7 @@ router.get("/periods", async (req: Request, res: Response, next) => {
       throw new AppError(400, "VALIDATION_ERROR", `Invalid category: ${raw}`);
     }
     const periods = limitationService.getPeriods(category);
+    console.log(`[limitation] GET /periods — category=${category ?? "all"}, count=${periods.length}`);
     res.json({ success: true, data: periods });
   } catch (err) {
     next(err);
@@ -55,13 +56,16 @@ router.post("/calculate", async (req: Request, res: Response, next) => {
       throw new AppError(400, "VALIDATION_ERROR", parsed.error.issues[0].message);
     }
     const result = limitationService.calculateDeadline(parsed.data);
+    console.log(`[limitation] POST /calculate — periodId=${parsed.data.period_id}, deadline=${result.final_deadline}, daysRemaining=${result.days_remaining}`);
     res.json({ success: true, data: result });
   } catch (err) {
     if (err instanceof AppError) {
       next(err);
     } else if (err instanceof Error && (err.message.startsWith("Unknown limitation") || err.message.startsWith("Invalid cause"))) {
+      console.warn(`[limitation] POST /calculate validation error: ${err.message}`);
       next(new AppError(400, "VALIDATION_ERROR", err.message));
     } else {
+      console.error(`[limitation] POST /calculate error:`, err instanceof Error ? err.message : err);
       next(err);
     }
   }
@@ -75,6 +79,7 @@ router.post("/suggest", async (req: Request, res: Response, next) => {
       throw new AppError(400, "VALIDATION_ERROR", parsed.error.issues[0].message);
     }
     const suggestions = limitationService.getSuggestions(parsed.data);
+    console.log(`[limitation] POST /suggest — count=${suggestions.length}`);
     res.json({ success: true, data: suggestions });
   } catch (err) {
     next(err);

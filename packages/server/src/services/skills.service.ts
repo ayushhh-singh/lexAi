@@ -6,7 +6,7 @@ import { getTemplate } from "./templates/index.js";
 
 const anthropic = new Anthropic({ apiKey: config.ANTHROPIC_API_KEY });
 
-const SKILLS_MODEL = "claude-sonnet-4-5-20250514";
+const SKILLS_MODEL = "claude-sonnet-4-6";
 
 export interface GenerateResult {
   fileId: string;
@@ -70,15 +70,30 @@ IMPORTANT: Use the code_execution tool to generate the ${fileType.toUpperCase()}
         "You are an expert Indian legal document drafter. Generate professionally formatted legal documents. " +
         "Always use code_execution to create the actual document file.",
       messages: [{ role: "user", content: userPrompt }],
-      tools: [{ type: "code_execution" }],
+      tools: [{ type: "code_execution_20260120" }],
     };
 
     if (containers.length > 0) {
       params.containers = containers;
     }
 
+    console.log("[skills] Calling Anthropic code_execution API...", {
+      model: SKILLS_MODEL,
+      template,
+      format,
+      hasContainers: containers.length > 0,
+    });
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response: any = await anthropic.messages.create(params);
+    let response: any;
+    try {
+      response = await anthropic.messages.create(params);
+      console.log("[skills] API response received, stop_reason:", response.stop_reason,
+        "content_blocks:", response.content?.length);
+    } catch (apiError) {
+      console.error("[skills] Anthropic API error:", apiError);
+      throw apiError;
+    }
 
     // Extract file_id and text from response
     let fileId = "";

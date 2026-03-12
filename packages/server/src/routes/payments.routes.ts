@@ -38,6 +38,7 @@ router.get(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sub = await getSubscription(req.user!.id);
+      console.log(`[payments] GET /subscription — userId=${req.user!.id}, tier=${sub?.tier ?? "free"}`);
       res.json({
         success: true,
         data: sub ?? {
@@ -47,6 +48,7 @@ router.get(
         },
       });
     } catch (err) {
+      console.error(`[payments] GET /subscription error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
       next(err);
     }
   },
@@ -65,6 +67,7 @@ router.post(
       }
 
       const { tier } = parsed.data;
+      console.log(`[payments] POST /subscribe — userId=${req.user!.id}, tier=${tier}`);
 
       if (!config.RAZORPAY_KEY_ID || !config.RAZORPAY_KEY_SECRET) {
         throw new AppError(503, "PAYMENT_UNAVAILABLE", "Payment gateway not configured");
@@ -84,6 +87,7 @@ router.post(
         `rzp_cust_${req.user!.id}`,
       );
 
+      console.log(`[payments] subscription created — userId=${req.user!.id}, subId=${sub.id}`);
       res.json({
         success: true,
         data: {
@@ -93,6 +97,7 @@ router.post(
         },
       });
     } catch (err) {
+      console.error(`[payments] POST /subscribe error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
       next(err);
     }
   },
@@ -112,6 +117,7 @@ router.post(
 
       const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } = parsed.data;
 
+      console.log(`[payments] POST /verify — userId=${req.user!.id}, subscriptionId=${razorpay_subscription_id}`);
       const valid = verifyRazorpaySignature(
         razorpay_payment_id,
         razorpay_subscription_id,
@@ -119,9 +125,11 @@ router.post(
       );
 
       if (!valid) {
+        console.warn(`[payments] signature verification failed — userId=${req.user!.id}`);
         throw new AppError(400, "INVALID_SIGNATURE", "Payment verification failed");
       }
 
+      console.log(`[payments] payment verified — userId=${req.user!.id}`);
       res.json({ success: true, data: { verified: true } });
     } catch (err) {
       next(err);
@@ -141,11 +149,13 @@ router.post(
         throw new AppError(400, "VALIDATION_ERROR", "Invalid request body");
       }
 
+      console.log(`[payments] POST /cancel — userId=${req.user!.id}, cancelAtPeriodEnd=${parsed.data.cancel_at_period_end}`);
       const sub = await cancelSubscription(
         req.user!.id,
         parsed.data.cancel_at_period_end,
       );
 
+      console.log(`[payments] subscription cancelled — userId=${req.user!.id}`);
       res.json({ success: true, data: sub });
     } catch (err) {
       next(err);
@@ -217,14 +227,18 @@ router.post(
         ?? JSON.stringify(req.body);
 
       if (!signature || !verifyWebhookSignature(rawBody, signature)) {
+        console.warn(`[payments] webhook signature invalid`);
         throw new AppError(400, "INVALID_WEBHOOK", "Invalid webhook signature");
       }
 
       const { event, payload } = req.body;
+      console.log(`[payments] webhook received — event=${event}`);
       await handleWebhookEvent(event, payload);
+      console.log(`[payments] webhook processed — event=${event}`);
 
       res.json({ success: true });
     } catch (err) {
+      console.error(`[payments] webhook error:`, err instanceof Error ? err.message : err);
       next(err);
     }
   },

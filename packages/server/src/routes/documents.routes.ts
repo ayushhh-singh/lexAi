@@ -49,6 +49,7 @@ router.post("/generate", requireCredits(15), async (req: Request, res: Response,
     }
 
     const { template, format, fields, case_matter_id, court, language } = parsed.data;
+    console.log(`[docs] POST /generate — userId=${req.user!.id}, template=${template}, format=${format}`);
 
     // Validate required template fields
     const templateDef = getTemplate(template as DocumentTemplate);
@@ -99,6 +100,7 @@ router.post("/generate", requireCredits(15), async (req: Request, res: Response,
     // Step 2: Generate document via Skills
     sendEvent({ type: "progress", step: "generating", message: "Generating document with AI (this may take 15-45 seconds)..." });
 
+    console.log(`[docs] generating document via skills — template=${template}, format=${format}`);
     const startTime = Date.now();
     const result = await skillsClient.generateDocument(
       template as DocumentTemplate,
@@ -107,6 +109,7 @@ router.post("/generate", requireCredits(15), async (req: Request, res: Response,
       { court, language, ragContext: undefined }
     );
     const generationTimeMs = Date.now() - startTime;
+    console.log(`[docs] document generated — fileId=${result.fileId}, tokens=${result.tokensUsed}, ${generationTimeMs}ms`);
 
     if (aborted) return;
 
@@ -134,8 +137,10 @@ router.post("/generate", requireCredits(15), async (req: Request, res: Response,
       });
 
     if (uploadError) {
+      console.error(`[docs] storage upload failed — userId=${req.user!.id}:`, uploadError.message);
       throw new Error(`Storage upload failed: ${uploadError.message}`);
     }
+    console.log(`[docs] file uploaded to storage — path=${fileName}, size=${fileBuffer.length}`);
 
     const { data: urlData } = supabaseAdmin.storage
       .from("documents")
@@ -163,10 +168,12 @@ router.post("/generate", requireCredits(15), async (req: Request, res: Response,
       .single();
 
     if (insertError) {
+      console.error(`[docs] failed to save document record — userId=${req.user!.id}:`, insertError.message);
       // Clean up orphaned storage file
       await supabaseAdmin.storage.from("documents").remove([fileName]).catch(() => {});
       throw new Error(`Failed to save document record: ${insertError.message}`);
     }
+    console.log(`[docs] document record saved — docId=${doc.id}, userId=${req.user!.id}`);
 
     // Step 6: Log to skill_generations for analytics
     await supabaseAdmin.from("skill_generations").insert({
@@ -195,6 +202,7 @@ router.post("/generate", requireCredits(15), async (req: Request, res: Response,
     });
     res.end();
   } catch (err) {
+    console.error(`[docs] POST /generate error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
     // Signal failure so credits middleware skips deduction (SSE always 200)
     res.statusCode = 500;
 
@@ -219,9 +227,11 @@ router.get("/", async (req: Request, res: Response, next) => {
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error(`[docs] GET / query error — userId=${req.user!.id}:`, error.message);
       throw new AppError(500, "QUERY_ERROR", "Failed to fetch documents");
     }
 
+    console.log(`[docs] GET / — userId=${req.user!.id}, count=${data?.length ?? 0}`);
     res.json({ success: true, data });
   } catch (err) {
     next(err);
@@ -264,8 +274,10 @@ router.get("/:id/download", async (req: Request, res: Response, next) => {
       .download(storagePath);
 
     if (downloadError || !fileData) {
+      console.error(`[docs] GET /:id/download failed — docId=${req.params.id}:`, downloadError?.message);
       throw new AppError(500, "DOWNLOAD_ERROR", "Failed to download file");
     }
+    console.log(`[docs] GET /:id/download — docId=${req.params.id}, userId=${req.user!.id}`);
 
     const buffer = Buffer.from(await fileData.arrayBuffer());
     const ext = doc.mime_type?.includes("pdf") ? "pdf" : "docx";
@@ -302,6 +314,7 @@ router.post(
       if (!req.file) {
         throw new AppError(400, "NO_FILE", "A file is required for analysis");
       }
+      console.log(`[docs] POST /analyze — userId=${req.user!.id}, file=${req.file.originalname}, size=${req.file.size}, mime=${req.file.mimetype}`);
 
       const meta = analyzeDocumentSchema.safeParse(req.body);
       const language = meta.success ? meta.data.language : "en";
@@ -366,9 +379,11 @@ router.post(
       docId = doc.id;
 
       // 4. Run AI analysis
+      console.log(`[docs] running AI analysis — docId=${doc.id}, textLength=${extracted.text.length}, language=${language}`);
       const startTime = Date.now();
       const analysis = await analyzeDocument(extracted.text, language);
       const analysisTimeMs = Date.now() - startTime;
+      console.log(`[docs] AI analysis complete — docId=${doc.id}, ${analysisTimeMs}ms`);
 
       // 5. Save analysis result
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -391,9 +406,11 @@ router.post(
         .single();
 
       if (analysisError) {
+        console.error(`[docs] failed to save analysis — docId=${doc.id}:`, analysisError.message);
         // Analysis computed but failed to persist — fail the request so credits aren't charged
         throw new Error(`Failed to save analysis: ${analysisError.message}`);
       }
+      console.log(`[docs] analysis saved — docId=${doc.id}, analysisId=${analysisRow.id}`);
 
       // 6. Update document with AI summary
       await supabaseAdmin
@@ -420,6 +437,7 @@ router.post(
 
       res.json({ success: true, data: result });
     } catch (err) {
+      console.error(`[docs] POST /analyze error — userId=${req.user?.id}:`, err instanceof Error ? err.message : err);
       // Clean up orphaned storage file + document record on failure
       try {
         if (docId) {
@@ -508,6 +526,8 @@ router.post(
       }
 
       // Generate PDF report
+      console.log(`[docs] POST /:id/analysis/report — docId=${req.params.id}, userId=${req.user!.id}`);
+      const reportStartTime = Date.now();
       const reportResult = await generateAnalysisReport(
         {
           summary: analysis.summary,
@@ -518,6 +538,8 @@ router.post(
         },
         doc.title
       );
+
+      console.log(`[docs] report generated — fileId=${reportResult.fileId}, tokens=${reportResult.tokensUsed}, ${Date.now() - reportStartTime}ms`);
 
       // Download from Anthropic
       const fileBuffer = await skillsClient.downloadFile(reportResult.fileId);
@@ -612,6 +634,7 @@ router.delete("/:id", async (req: Request, res: Response, next) => {
       .delete()
       .eq("id", req.params.id);
 
+    console.log(`[docs] DELETE /:id — docId=${req.params.id}, userId=${req.user!.id}`);
     res.json({ success: true });
   } catch (err) {
     next(err);
