@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { CheckCircle, AlertTriangle, X } from "lucide-react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Citation } from "@nyay/shared";
 import { FeedbackWidget } from "../billing/FeedbackWidget";
 
@@ -71,6 +73,62 @@ function CitationBadge({ citation }: { citation: Citation }) {
   );
 }
 
+const MarkdownContent = memo(function MarkdownContent({ content }: { content: string }) {
+  return (
+    <Markdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        h1: ({ children }) => <h1 className="mb-2 mt-3 text-base font-semibold text-navy-700 first:mt-0">{children}</h1>,
+        h2: ({ children }) => <h2 className="mb-2 mt-3 text-[0.9375rem] font-semibold text-navy-700 first:mt-0">{children}</h2>,
+        h3: ({ children }) => <h3 className="mb-1.5 mt-2.5 text-sm font-semibold text-navy-700 first:mt-0">{children}</h3>,
+        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+        ul: ({ children }) => <ul className="mb-2 ml-4 list-disc space-y-1 last:mb-0">{children}</ul>,
+        ol: ({ children }) => <ol className="mb-2 ml-4 list-decimal space-y-1 last:mb-0">{children}</ol>,
+        li: ({ children }) => <li className="pl-0.5">{children}</li>,
+        strong: ({ children }) => <strong className="font-semibold text-navy-700">{children}</strong>,
+        em: ({ children }) => <em className="italic">{children}</em>,
+        blockquote: ({ children }) => (
+          <blockquote className="my-2 border-l-2 border-accent/40 pl-3 italic text-gray-600">
+            {children}
+          </blockquote>
+        ),
+        code: ({ className, children }) => {
+          const isBlock = className?.includes("language-");
+          if (isBlock) {
+            return (
+              <code className="block overflow-x-auto rounded-lg bg-navy-50 p-3 font-mono text-xs leading-relaxed text-navy-800">
+                {children}
+              </code>
+            );
+          }
+          return (
+            <code className="rounded bg-navy-50 px-1 py-0.5 font-mono text-xs text-navy-700">
+              {children}
+            </code>
+          );
+        },
+        pre: ({ children }) => <pre className="my-2 last:mb-0">{children}</pre>,
+        table: ({ children }) => (
+          <div className="my-2 overflow-x-auto">
+            <table className="w-full border-collapse text-xs">{children}</table>
+          </div>
+        ),
+        thead: ({ children }) => <thead className="bg-navy-50">{children}</thead>,
+        th: ({ children }) => <th className="border border-gray-200 px-2 py-1.5 text-left font-semibold text-navy-700">{children}</th>,
+        td: ({ children }) => <td className="border border-gray-200 px-2 py-1.5">{children}</td>,
+        a: ({ href, children }) => (
+          <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent underline decoration-accent/30 hover:decoration-accent">
+            {children}
+          </a>
+        ),
+        hr: () => <hr className="my-3 border-gray-200" />,
+      }}
+    >
+      {content}
+    </Markdown>
+  );
+});
+
 export function MessageBubble({ role, content, citations, isStreaming, messageId }: MessageBubbleProps) {
   const isUser = role === "user";
 
@@ -85,16 +143,18 @@ export function MessageBubble({ role, content, citations, isStreaming, messageId
             : "border border-gray-100 bg-gray-50 text-gray-800"
         }`}
       >
-        <div
-          className={`whitespace-pre-wrap text-sm leading-relaxed ${
-            isUser ? "font-heading" : "font-body"
-          }`}
-        >
-          {content}
-          {isStreaming && (
-            <span className="ml-0.5 inline-block h-4 w-0.5 animate-blink bg-navy-600" />
-          )}
-        </div>
+        {isUser ? (
+          <div className="whitespace-pre-wrap font-heading text-sm leading-relaxed">
+            {content}
+          </div>
+        ) : (
+          <div className="prose-chat font-body text-sm leading-relaxed">
+            <MarkdownContent content={content} />
+            {isStreaming && (
+              <span className="ml-0.5 inline-block h-4 w-0.5 animate-blink bg-navy-600" />
+            )}
+          </div>
+        )}
 
         {/* Citations */}
         {citations && citations.length > 0 && (

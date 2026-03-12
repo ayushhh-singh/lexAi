@@ -6,6 +6,10 @@ import {
   type Citation,
 } from "@nyay/shared";
 
+const IK_TOKEN = process.env.INDIAN_KANOON_API_KEY ?? "";
+const IK_BASE = "https://api.indiankanoon.org";
+const HAS_IK = !!IK_TOKEN;
+
 // ---------------------------------------------------------------------------
 // 1. parseCitations — extract structured citations from AI response text
 // ---------------------------------------------------------------------------
@@ -43,9 +47,16 @@ async function verifySingle(
   citation: ParsedCitation
 ): Promise<CitationVerification> {
   try {
-    const searchTerm = buildSearchTerm(citation);
+    const isCaseCitation = isCaseFormat(citation.format);
 
-    // Use FTS keyword search against legal_chunks for fast lookup
+    // ── Layer 1: Metadata citation match (for case citations stored via lazy-populate) ──
+    if (isCaseCitation) {
+      const metaResult = await verifyViaMetadata(citation);
+      if (metaResult) return metaResult;
+    }
+
+    // ── Layer 2: FTS keyword search against legal_chunks ──
+    const searchTerm = buildSearchTerm(citation);
     const { data, error } = await supabaseAdmin.rpc("match_chunks_keyword", {
       search_query: searchTerm,
       match_limit: 3,
@@ -54,19 +65,38 @@ async function verifySingle(
 
     if (error) {
       console.error(`[citation-verify] RPC error for "${citation.raw}":`, error.message);
-      return { citation, verified: false, suggestion: "Verification failed due to a database error." };
-    }
-
-    const chunks = data ?? [];
-
-    if (chunks.length > 0) {
-      const best = chunks[0];
+    } else if (data && data.length > 0) {
+      const best = data[0];
       return {
         citation,
         verified: true,
         chunk_id: best.id,
         source_title: best.source_title,
       };
+    }
+
+    // ── Layer 2b: Retry FTS without source_type filter (broader match) ──
+    if (getSourceTypeFilter(citation)) {
+      const { data: broadData } = await supabaseAdmin.rpc("match_chunks_keyword", {
+        search_query: searchTerm,
+        match_limit: 3,
+        filter_source_type: null,
+      });
+      if (broadData && broadData.length > 0) {
+        const best = broadData[0];
+        return {
+          citation,
+          verified: true,
+          chunk_id: best.id,
+          source_title: best.source_title,
+        };
+      }
+    }
+
+    // ── Layer 3: Indian Kanoon API verification (for case citations) ──
+    if (isCaseCitation && HAS_IK) {
+      const ikResult = await verifyViaIndianKanoon(citation);
+      if (ikResult) return ikResult;
     }
 
     return {
@@ -77,6 +107,73 @@ async function verifySingle(
   } catch (err) {
     console.error(`[citation-verify] Unexpected error for "${citation.raw}":`, err);
     return { citation, verified: false, suggestion: "Verification failed unexpectedly." };
+  }
+}
+
+function isCaseFormat(format: string): boolean {
+  return ["AIR", "SCC", "NEUTRAL", "SCR", "SCC_ONLINE", "ILR", "CRLJ"].includes(format);
+}
+
+// Search metadata->>'citation' for cases stored via lazy-populate
+async function verifyViaMetadata(
+  citation: ParsedCitation
+): Promise<CitationVerification | null> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("legal_chunks")
+      .select("id, source_title")
+      .eq("source_type", "judgement")
+      .ilike("metadata->>citation", `%${citation.raw}%`)
+      .limit(1);
+
+    if (error || !data || data.length === 0) return null;
+
+    return {
+      citation,
+      verified: true,
+      chunk_id: data[0].id,
+      source_title: data[0].source_title,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Verify case citations via Indian Kanoon search API
+async function verifyViaIndianKanoon(
+  citation: ParsedCitation
+): Promise<CitationVerification | null> {
+  try {
+    const url = new URL("/search/", IK_BASE);
+    url.searchParams.set("formInput", citation.raw);
+    url.searchParams.set("pagenum", "0");
+
+    const res = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Token ${IK_TOKEN}`,
+        Accept: "application/json",
+      },
+      signal: AbortSignal.timeout(5000), // 5s timeout per citation
+    });
+
+    if (!res.ok) return null;
+
+    const data = (await res.json()) as { docs?: Array<{ tid: string; title: string }> };
+    const docs = data.docs ?? [];
+
+    if (docs.length > 0) {
+      console.log(`[citation-verify] Verified via Indian Kanoon: "${citation.raw}" → ${docs[0].title}`);
+      return {
+        citation,
+        verified: true,
+        source_title: docs[0].title,
+      };
+    }
+
+    return null;
+  } catch {
+    // Network/timeout errors — don't block verification
+    return null;
   }
 }
 

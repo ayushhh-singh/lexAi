@@ -72,6 +72,7 @@ export function ChatInterface({ onConversationCreated, onOpenConversations }: Ch
   const [pendingDraftMessage, setPendingDraftMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const skipFetchRef = useRef(false);
 
   const { streamedText, isStreaming, citations, error, send } = useStreamChat();
   const { language } = useTranslation();
@@ -80,6 +81,11 @@ export function ChatInterface({ onConversationCreated, onOpenConversations }: Ch
   useEffect(() => {
     if (!conversationId) {
       setMessages([]);
+      return;
+    }
+    // Skip fetch when we just created the conversation — messages are already in local state
+    if (skipFetchRef.current) {
+      skipFetchRef.current = false;
       return;
     }
     let cancelled = false;
@@ -148,20 +154,28 @@ export function ChatInterface({ onConversationCreated, onOpenConversations }: Ch
   const sendMessage = useCallback(
     async (message: string) => {
       let activeConvId = conversationId;
+      let isNewConversation = false;
 
       if (!activeConvId) {
         const res = await api.chat.createConversation({ practice_area: practiceArea ?? undefined });
         if (res.data) {
           activeConvId = res.data.id;
+          isNewConversation = true;
           onConversationCreated();
-          navigate(`/chat/${activeConvId}`, { replace: true });
         }
       }
 
       if (!activeConvId) return;
 
+      // Add message and start streaming BEFORE navigating to prevent race condition
       addUserMessage(message, activeConvId);
       send({ message, conversation_id: activeConvId, practice_area: practiceArea ?? undefined, language });
+
+      // Navigate after state is set so the useEffect doesn't wipe messages
+      if (isNewConversation) {
+        skipFetchRef.current = true;
+        navigate(`/chat/${activeConvId}`, { replace: true });
+      }
     },
     [conversationId, practiceArea, language, onConversationCreated, navigate, addUserMessage, send],
   );

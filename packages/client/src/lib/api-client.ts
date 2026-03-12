@@ -141,6 +141,7 @@ export const api = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "text/event-stream",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(body),
@@ -240,7 +241,7 @@ export const api = {
             "Content-Type": "multipart/form-data",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
-          timeout: 120_000, // 2 min for extraction + analysis
+          timeout: 300_000, // 5 min for upload + extraction + AI analysis
         }
       );
       return response.data;

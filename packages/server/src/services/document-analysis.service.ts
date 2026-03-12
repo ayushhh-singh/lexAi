@@ -363,21 +363,22 @@ IMPORTANT: Use the code_execution tool to generate the PDF file.`;
     system:
       "You are a report generation assistant. Generate professional PDF reports using Python's reportlab library via code_execution.",
     messages: [{ role: "user", content: prompt }],
-    tools: [{ type: "code_execution_20260120" }],
+    tools: [{ type: "code_execution_20260120", name: "code_execution" }],
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const response: any = await anthropic.messages.create(params);
 
   let fileId = "";
   for (const block of response.content) {
-    if (block.type === "code_execution_result" && "content" in block) {
-      const content = block.content as Array<{
-        type: string;
-        file_id?: string;
-      }>;
-      for (const item of content) {
-        if (item.type === "file" && item.file_id) {
-          fileId = item.file_id;
+    // code_execution_20260120 returns bash_code_execution_tool_result blocks
+    if (block.type === "bash_code_execution_tool_result" && block.content) {
+      const result = block.content;
+      const content = result.content as Array<{ type: string; file_id?: string }> | undefined;
+      if (content) {
+        for (const item of content) {
+          if (item.type === "bash_code_execution_output" && item.file_id) {
+            fileId = item.file_id;
+          }
         }
       }
     }

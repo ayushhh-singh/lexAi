@@ -70,7 +70,7 @@ IMPORTANT: Use the code_execution tool to generate the ${fileType.toUpperCase()}
         "You are an expert Indian legal document drafter. Generate professionally formatted legal documents. " +
         "Always use code_execution to create the actual document file.",
       messages: [{ role: "user", content: userPrompt }],
-      tools: [{ type: "code_execution_20260120" }],
+      tools: [{ type: "code_execution_20260120", name: "code_execution" }],
     };
 
     if (containers.length > 0) {
@@ -103,18 +103,23 @@ IMPORTANT: Use the code_execution tool to generate the ${fileType.toUpperCase()}
       if (block.type === "text") {
         text += block.text;
       }
-      // Look for code execution results with file output
-      if (block.type === "code_execution_result" && "content" in block) {
-        const content = block.content as Array<{ type: string; file_id?: string }>;
-        for (const item of content) {
-          if (item.type === "file" && item.file_id) {
-            fileId = item.file_id;
+      // code_execution_20260120 returns bash_code_execution_tool_result blocks
+      // with nested bash_code_execution_output items containing file_id
+      if (block.type === "bash_code_execution_tool_result" && block.content) {
+        const result = block.content;
+        const content = result.content as Array<{ type: string; file_id?: string }> | undefined;
+        if (content) {
+          for (const item of content) {
+            if (item.type === "bash_code_execution_output" && item.file_id) {
+              fileId = item.file_id;
+            }
           }
         }
       }
     }
 
     if (!fileId) {
+      console.error("[skills] No file found. Block types:", response.content.map((b: { type: string }) => b.type));
       throw new Error("Skills generation did not produce a file. The AI response may not have used code_execution.");
     }
 
@@ -124,8 +129,18 @@ IMPORTANT: Use the code_execution tool to generate the ${fileType.toUpperCase()}
   }
 
   async downloadFile(fileId: string): Promise<Buffer> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = await (anthropic as any).files.retrieveContent(fileId);
+    // SDK v0.30.1 lacks beta.files — use raw HTTP to download
+    const response = await fetch(`https://api.anthropic.com/v1/files/${fileId}/content`, {
+      headers: {
+        "x-api-key": config.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "files-api-2025-04-14",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`File download failed: ${response.status} ${response.statusText}`);
+    }
 
     const arrayBuffer = await response.arrayBuffer();
     if (arrayBuffer.byteLength > MAX_FILE_SIZE) {
